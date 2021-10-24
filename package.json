@@ -1,0 +1,11 @@
+{
+  "name": "upsell",
+  "version": "1.0.0",
+  "description": "Shopify post purchase upsell GTM integration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
