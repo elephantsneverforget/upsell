@@ -8,31 +8,31 @@
     dataLayer.push(arguments);
   }
 
-  gtag('js', new Date());
-  gtag('config', 'G-FYNQ742HTX');
+  // gtag('js', new Date());
+  // gtag('config', 'G-FYNQ742HTX');
 
-  // make sure the initial conversion isn't tracked twice
-  if (!Shopify.wasPostPurchasePageSeen) {
-    var order = window.Shopify.order;
+  // // make sure the initial conversion isn't tracked twice
+  // if (!Shopify.wasPostPurchasePageSeen) {
+  //   var order = window.Shopify.order;
 
-    // track initial conversion
-    gtag('event', 'purchase', {
-      affiliation: 'My Shopify Store',
-      transaction_id: Number(order.id).toString(),
-      value: order.totalPrice,
-      currency: order.currency,
-      items: order.lineItems.map(function(item) {
-        return {
-          id: Number(item.id).toString(),
-          name: item.title,
-          category: item.product.type,
-          price: item.price,
-          quantity: item.quantity,
-          variant: Number(item.variant.sku).toString(),
-        };
-      }),
-    });
-  }
+  //   // track initial conversion
+  //   gtag('event', 'purchase', {
+  //     affiliation: 'My Shopify Store',
+  //     transaction_id: Number(order.id).toString(),
+  //     value: order.totalPrice,
+  //     currency: order.currency,
+  //     items: order.lineItems.map(function(item) {
+  //       return {
+  //         id: Number(item.id).toString(),
+  //         name: item.title,
+  //         category: item.product.type,
+  //         price: item.price,
+  //         quantity: item.quantity,
+  //         variant: Number(item.variant.sku).toString(),
+  //       };
+  //     }),
+  //   });
+  // }
 
   // set up additional conversion tracking
   Shopify.on('CheckoutAmended', function(newOrder, previousOrder) {
