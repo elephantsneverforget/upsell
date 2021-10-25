@@ -32,7 +32,9 @@ function onCheckout(initialOrder) {
     });
 }
 
-// Function called when upsell is taken
+// Function called when upsell is taken. The idea is to seperate the new/upsell
+// items from the items in the initial order and then send a purchase event
+// for just the new items.
 function onCheckoutAmended(upsellOrder, initialOrder) {
     // identify which items were recently added, if any
     var oldItems = initialOrder.lineItems.map(function (line) { return line.id; });
