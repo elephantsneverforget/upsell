@@ -1,7 +1,7 @@
 // <script>
+
 (function () {
     window.dataLayer = window.dataLayer || [];
-    debugger;
     // Track the initial conversion as we would normally do on the order status page
     // Make sure this page hasn't been reloaded or revisited so we don't
     if (!Shopify.wasPostPurchasePageSeen) {
@@ -106,9 +106,9 @@ function getActionField(shopifyOrder) {
         'id': shopifyOrder.id,
         // TODO: What should this be?
         'order_name': shopifyOrder.id,
-        'discount_amount': getDiscountAmount(shopifyOrder),
+        'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
         'revenue': shopifyOrder.totalPrice,
-        'sub_total': shopifyOrder.subTotalPrice,
+        'sub_total': shopifyOrder.subtotalPrice,
         // TODO: No tax amount given
         // 'tax': getValue('vat', data) + getValue('duty', data),
         // TODO: No shipping amount given
@@ -117,14 +117,15 @@ function getActionField(shopifyOrder) {
 }
 
 function getDiscountAmount(shopifyOrder) {
-    return shopifyOrder.discounts.reduce(function (total, discount) {
-        return total += parseFloat(discount.amount);
+    return shopifyOrder.discounts.reduce(function (acc, discount) {
+        return acc += parseFloat(discount.amount);
     }, 0)
 }
 
 try {
     module.exports = exports = {
         onCheckoutAmended: onCheckoutAmended,
+        onCheckout: onCheckout,
     };
 } catch (e) { }
 // </script>
