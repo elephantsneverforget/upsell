@@ -1,4 +1,4 @@
-exports.default = {
+module.exports = {
     "Checkout": {
         "Autocomplete": true,
         "apiHost": "elevar-gear.myshopify.com",

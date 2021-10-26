@@ -12,10 +12,11 @@ const { onCheckoutAmended, onCheckout } = require('./index')
 
 
 
-test('adds 1 + 2 to equal 3', () => {
-  onCheckout(newOrder.default);
+test('onCheckout adds event to DL', () => {
+  onCheckout(newOrder);
+  expect
   console.log(window.dataLayer);
-  onCheckoutAmended(oldOrder.default, newOrder.default)
+  onCheckoutAmended(oldOrder, newOrder)
   console.log(window.dataLayer);
   expect(3).toBe(3);
 });
@@ -25,7 +26,7 @@ function mockWindow() {
     value: {
       'dataLayer': [],
       'Shopify': {
-        'order': originalOrder.default,
+        'order': originalOrder,
       },
 
     },
@@ -34,7 +35,7 @@ function mockWindow() {
   Object.defineProperty(global, "Shopify", {
     value: {
       wasPostPurchasePageSeen: false,
-      'order': originalOrder.default,
+      'order': originalOrder,
       'on': function() {return;}
     },
     writable: true

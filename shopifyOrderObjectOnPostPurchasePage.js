@@ -1,6 +1,6 @@
 // This is the Shopify order object that is passed as soon as you land on the post purchase page
 // This is what we'll need to use to fill out our initial dl_purchase.
-exports.default = {
+module.exports = {
     "id": 4099634004004,
     "number": 1294,
     "checkoutToken": "00f7e3639288db19e9f6c34955db037c",

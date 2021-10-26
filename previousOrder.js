@@ -1,4 +1,4 @@
-exports.default = {
+module.exports = {
     "id": 4099416031268,
     "number": 1292,
     "checkoutToken": "3be4f27042c29efdcdc983ee3d2310cb",
