@@ -1,4 +1,3 @@
-// COPY FROM HERE -------------------------------------------
 // If this page hasn't been seen, send the initial order to the parent iFrame
 upsellCount = 0;
 console.log('!Shopify.wasPostPurchasePageSeen = ' + !Shopify.wasPostPurchasePageSeen);
@@ -110,8 +109,3 @@ function getOrderId(orderId, isUpsell) {
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
             'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
 })(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
-// COPY TO HERE -------------------------------------------
-
-function test() {
-    onCheckoutAmended(newOrder, initialOrder);
-}
