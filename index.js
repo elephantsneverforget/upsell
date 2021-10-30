@@ -1,18 +1,31 @@
 // <script>
-
 (function () {
     window.dataLayer = window.dataLayer || [];
     // Track the initial conversion as we would normally do on the order status page
     // Make sure this page hasn't been reloaded or revisited so we don't
-    if (!Shopify.wasPostPurchasePageSeen) {
-        onCheckout(window.Shopify.order)
-    }
+    // This always evaluates to true!
+    // if (Shopify.wasPostPurchasePageSeen) {
+    console.log("Logging onCheckout");
+    // setInterval(function () {
+    //     window.top.postMessage({ command: 'onCheckout', type: 'postPurchase' }, '*');
+    // }, 5000);
+
+    setTimeout(function () {
+        window.top.postMessage({ command: 'onCheckout', newOrder: window.Shopify.order }, '*');
+    }, 5000);
+    // onCheckout(window.Shopify.order)
+
+    // }
 
     // Set up additional conversion tracking for upsell orders
     Shopify.on('CheckoutAmended', function (newOrder, previousOrder) {
-        onCheckoutAmended(newOrder, previousOrder);
+        console.log("Logging onCheckoutAmended");
+        window.top.postMessage({ command: 'onCheckoutAmended', newOrder: newOrder, previousOrder: previousOrder }, '*')
+        // onCheckoutAmended(newOrder, previousOrder);
     });
 })();
+
+
 
 // This function gets called when the purchase is made, and the upsell is shown.
 // This sends the first part of the order, much like we'd normally do on the order
@@ -50,7 +63,7 @@ function onCheckoutAmended(upsellOrder, initialOrder) {
         'user_properties': getUserProperties(upsellOrder),
         'ecommerce': {
             'purchase': {
-                'actionField': getActionField(upsellOrder), 
+                'actionField': getActionField(upsellOrder),
                 'products': getLineItems(addedItems)
             },
             'currencyCode': upsellOrder.currency,
@@ -86,7 +99,7 @@ function getLineItems(lineItems) {
             // TODO: ID is sku?
             'id': item.variant.sku,
             // TODO: What is this? Check these ids are correct.
-            'variant': Number(item.variant.sku).toString(),
+            'variant': item.variant.sku.toString(),
             'name': item.title,
             'price': item.price,
             'quantity': item.quantity,
@@ -128,4 +141,15 @@ try {
         onCheckout: onCheckout,
     };
 } catch (e) { }
+// </script>
+
+// <script>
+// (function (w, d, s, l, i) {
+//     w[l] = w[l] || []; w[l].push({
+//         'gtm.start':
+//             new Date().getTime(), event: 'gtm.js'
+//     }); var f = d.getElementsByTagName(s)[0],
+//         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+//             'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+// })(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
 // </script>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HTML 5 Boilerplate</title>
+</head>
+
+<body>
+    <script>
+        var initialOrder = {
+            "id": 4099416031268,
+            "number": 1292,
+            "checkoutToken": "3be4f27042c29efdcdc983ee3d2310cb",
+            "lineItems": [
+                {
+                    "id": 10398820958244,
+                    "finalLinePrice": "19.50",
+                    "finalPrice": "19.50",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Title",
+                            "value": "Default Title"
+                        }
+                    ],
+                    "originalLinePrice": "19.50",
+                    "originalPrice": "19.50",
+                    "price": "19.50",
+                    "product": {
+                        "id": 6788257415204,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Trucker Cap",
+                    "variant": {
+                        "id": 39657149366308,
+                        "sku": "4563504_8746"
+                    }
+                }
+            ],
+            "subtotalPrice": "1.95",
+            "totalPrice": "8.24",
+            "currency": "USD",
+            "discounts": [
+                {
+                    "type": "PercentageDiscount",
+                    "code": "90OFF",
+                    "amount": "17.55"
+                }
+            ],
+            "customer": {
+                "id": 5402803863588,
+                "email": "jonathan@getelevar.com",
+                "acceptsMarketing": false,
+                "hasAccount": false,
+                "firstName": "Jonathan",
+                "lastName": "Cairo",
+                "ordersCount": 5,
+                "totalSpent": "114.15"
+            }
+        }
+
+        var newOrder = {
+            "id": 4099416031268,
+            "number": 1292,
+            "checkoutToken": "3be4f27042c29efdcdc983ee3d2310cb",
+            "lineItems": [
+                {
+                    "id": 10398820958244,
+                    "finalLinePrice": "19.50",
+                    "finalPrice": "19.50",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Title",
+                            "value": "Default Title"
+                        }
+                    ],
+                    "originalLinePrice": "19.50",
+                    "originalPrice": "19.50",
+                    "price": "19.50",
+                    "product": {
+                        "id": 6788257415204,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Trucker Cap",
+                    "variant": {
+                        "id": 39657149366308,
+                        "sku": "4563504_8746"
+                    }
+                },
+                {
+                    "id": 10398822662180,
+                    "finalLinePrice": "25.00",
+                    "finalPrice": "25.00",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Color",
+                            "value": "Black"
+                        },
+                        {
+                            "name": "Size",
+                            "value": "S"
+                        }
+                    ],
+                    "originalLinePrice": "25.00",
+                    "originalPrice": "25.00",
+                    "price": "25.00",
+                    "product": {
+                        "id": 6788248338468,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Men&#39;s Curved Hem T-Shirt - Black / S",
+                    "variant": {
+                        "id": 39657128394788,
+                        "sku": "6335694_11325"
+                    }
+                }
+            ],
+            "subtotalPrice": "26.95",
+            "totalPrice": "33.24",
+            "currency": "USD",
+            "discounts": [
+                {
+                    "type": "PercentageDiscount",
+                    "code": "90OFF",
+                    "amount": "17.55"
+                }
+            ],
+            "customer": {
+                "id": 5402803863588,
+                "email": "jonathan@getelevar.com",
+                "acceptsMarketing": false,
+                "hasAccount": false,
+                "firstName": "Jonathan",
+                "lastName": "Cairo",
+                "ordersCount": 5,
+                "totalSpent": "139.15"
+            }
+        };
+        // Send the initial purchase data if this is the first time seeing the page
+        var Shopify = {}
+        Shopify.wasPostPurchasePageSeen = false;
+        
+        // COPY FROM HERE -------------------------------------------
+        // If this page hasn't been seen, send the initial order to the parent iFrame
+        if (!Shopify.wasPostPurchasePageSeen) {
+            var i = setInterval(function () {
+                console.log("Sending message from child iFrame")
+                window.top.postMessage({ command: 'onCheckout', initialOrder: initialOrder }, '*');
+            }, 500);
+        }
+        // Wait for an ack message. Then stop sending initial order message.
+        window.addEventListener('message', function (e) {
+            // If we get an ack clear the interval
+            if (e.data === 'ack') {
+                console.log(e.data);
+                clearInterval(i);
+                console.log('Interval cleared in iFrame')
+            }
+        });
+        // If an upsell order is taken, send a message to the parent iframe with both the new and original order
+        Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
+            console.log("Logging onCheckoutAmended");
+            window.top.postMessage({ command: 'onCheckoutAmended', newOrder: newOrder, initialOrder: initialOrder }, '*')
+            // onCheckoutAmended(newOrder, previousOrder);
+        });
+        function test(){
+            console.log('button')
+            window.top.postMessage({ command: 'onCheckoutAmended', newOrder: newOrder, initialOrder: initialOrder }, '*')
+        }
+        // COPY TO HERE -------------------------------------------
+    </script>
+    <button onclick="test()">Amend Checkout</button>
+</body>
+
+</html>

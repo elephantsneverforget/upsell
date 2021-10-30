@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HTML 5 Boilerplate</title>
+</head>
+
+<body>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        var initialOrder = {
+            "id": 4099416031268,
+            "number": 1292,
+            "checkoutToken": "3be4f27042c29efdcdc983ee3d2310cb",
+            "lineItems": [
+                {
+                    "id": 10398820958244,
+                    "finalLinePrice": "19.50",
+                    "finalPrice": "19.50",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Title",
+                            "value": "Default Title"
+                        }
+                    ],
+                    "originalLinePrice": "19.50",
+                    "originalPrice": "19.50",
+                    "price": "19.50",
+                    "product": {
+                        "id": 6788257415204,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Trucker Cap",
+                    "variant": {
+                        "id": 39657149366308,
+                        "sku": "4563504_8746"
+                    }
+                }
+            ],
+            "subtotalPrice": "1.95",
+            "totalPrice": "8.24",
+            "currency": "USD",
+            "discounts": [
+                {
+                    "type": "PercentageDiscount",
+                    "code": "90OFF",
+                    "amount": "17.55"
+                }
+            ],
+            "customer": {
+                "id": 5402803863588,
+                "email": "jonathan@getelevar.com",
+                "acceptsMarketing": false,
+                "hasAccount": false,
+                "firstName": "Jonathan",
+                "lastName": "Cairo",
+                "ordersCount": 5,
+                "totalSpent": "114.15"
+            }
+        }
+        var newOrder = {
+            "id": 4099416031268,
+            "number": 1292,
+            "checkoutToken": "3be4f27042c29efdcdc983ee3d2310cb",
+            "lineItems": [
+                {
+                    "id": 10398820958244,
+                    "finalLinePrice": "19.50",
+                    "finalPrice": "19.50",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Title",
+                            "value": "Default Title"
+                        }
+                    ],
+                    "originalLinePrice": "19.50",
+                    "originalPrice": "19.50",
+                    "price": "19.50",
+                    "product": {
+                        "id": 6788257415204,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Trucker Cap",
+                    "variant": {
+                        "id": 39657149366308,
+                        "sku": "4563504_8746"
+                    }
+                },
+                {
+                    "id": 10398822662180,
+                    "finalLinePrice": "25.00",
+                    "finalPrice": "25.00",
+                    "lineLevelTotalDiscount": 0,
+                    "optionsWithValues": [
+                        {
+                            "name": "Color",
+                            "value": "Black"
+                        },
+                        {
+                            "name": "Size",
+                            "value": "S"
+                        }
+                    ],
+                    "originalLinePrice": "25.00",
+                    "originalPrice": "25.00",
+                    "price": "25.00",
+                    "product": {
+                        "id": 6788248338468,
+                        "type": ""
+                    },
+                    "properties": [],
+                    "quantity": 1,
+                    "title": "Men&#39;s Curved Hem T-Shirt - Black / S",
+                    "variant": {
+                        "id": 39657128394788,
+                        "sku": "6335694_11325"
+                    }
+                }
+            ],
+            "subtotalPrice": "26.95",
+            "totalPrice": "33.24",
+            "currency": "USD",
+            "discounts": [
+                {
+                    "type": "PercentageDiscount",
+                    "code": "90OFF",
+                    "amount": "17.55"
+                }
+            ],
+            "customer": {
+                "id": 5402803863588,
+                "email": "jonathan@getelevar.com",
+                "acceptsMarketing": false,
+                "hasAccount": false,
+                "firstName": "Jonathan",
+                "lastName": "Cairo",
+                "ordersCount": 5,
+                "totalSpent": "139.15"
+            }
+        };
+        // Send the initial purchase data if this is the first time seeing the page
+        var Shopify = {}
+        window.Shopify = {order: initialOrder};
+        Shopify.wasPostPurchasePageSeen = true;
+        Shopify.on = function(){};
+
+        // COPY FROM HERE -------------------------------------------
+        // If this page hasn't been seen, send the initial order to the parent iFrame
+        upsellCount = 0;
+        debugger;
+        console.log('!Shopify.wasPostPurchasePageSeen = ' + !Shopify.wasPostPurchasePageSeen);
+        if (Shopify.wasPostPurchasePageSeen) {
+            console.log("onCheckout event");
+            onCheckout(window.Shopify.order);
+        }
+        // If an upsell order is taken, send a message to the parent iframe with both the new and original order
+        Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
+            debugger;
+            console.log("onCheckoutAmended event");
+            // TODO: What happens on second upsell? Does initial Order contain the first upsell?
+            onCheckoutAmended(newOrder, initialOrder);
+        });
+
+        function onCheckout(initialOrder) {
+            window.dataLayer = window.dataLayer || [];
+            pushDLPurchase(initialOrder, getLineItems(initialOrder.lineItems), false)
+        }
+
+        // Function called when upsell is taken. Seperate the new/upsell
+        // items from the items in the initial order and then send a purchase event
+        // for just the new items.
+        function onCheckoutAmended(upsellOrder, initialOrder) {
+            // identify which items were added to the initial order, if any.
+            upsellCount++;
+            var initialItems = initialOrder.lineItems.map(function (line) { return line.id; });
+            var addedItems = upsellOrder.lineItems.filter(
+                function (line) { return initialItems.indexOf(line.id) < 0; }
+            );
+            // if no new items were added skip tracking
+            if (addedItems.length === 0) return;
+            pushDLPurchase(upsellOrder, getLineItems(addedItems), true);
+        }
+
+        function pushDLPurchase(order, lineItems, isUpsell) {
+            window.dataLayer.push({
+                'event': 'dl_purchase',
+                'event_id': getOrderId(order.id, isUpsell),
+                'user_properties': getUserProperties(order),
+                'ecommerce': {
+                    'purchase': {
+                        'actionField': getActionField(order, isUpsell),
+                        'products': lineItems
+                    },
+                    'currencyCode': order.currency,
+                },
+            });
+        }
+        // Returns a user properties object
+        function getUserProperties(data) {
+            return {
+                'customer_id': data.customer.id,
+                'customer_email': data.customer.email,
+                'customer_first_name': data.customer.firstName,
+                'customer_last_name': data.customer.lastName,
+            }
+        }
+
+        // Gets line items in purchase
+        function getLineItems(lineItems) {
+            return lineItems.map(function (item) {
+                return {
+                    'category': item.product.type,
+                    'variant_id': item.variant.id,
+                    'product_id': Number(item.id).toString(),
+                    // TODO: ID is sku?
+                    'id': item.variant.sku,
+                    // TODO: What is this? Check these ids are correct.
+                    'variant': item.variant.sku.toString(),
+                    'name': item.title,
+                    'price': item.price,
+                    'quantity': item.quantity,
+                    // TODO: none of these are available
+                    // 'brand': orderItem.brand,
+                    // 'image': contentItem.images[0]['url'],
+                }
+            });
+        }
+
+        function getActionField(shopifyOrder, isUpsell) {
+            return {
+                'action': "purchase",
+                // TODO: No org available
+                // 'affiliation': data.organization,
+                // TODO: Should this be order id or order number?
+                'id': getOrderId(shopifyOrder.id, isUpsell),
+                // TODO: What should this be?
+                'order_name': getOrderId(shopifyOrder.id, isUpsell),
+                'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
+                'revenue': shopifyOrder.totalPrice,
+                'sub_total': shopifyOrder.subtotalPrice,
+            };
+        }
+
+        function getDiscountAmount(shopifyOrder) {
+            return shopifyOrder.discounts.reduce(function (acc, discount) {
+                return acc += parseFloat(discount.amount);
+            }, 0)
+        }
+
+        function getOrderId(orderId, isUpsell) {
+            return isUpsell ? orderId.toString() + '-' + upsellCount.toString() : orderId;
+        }
+        // Inlcude GTM
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
+        // COPY TO HERE -------------------------------------------
+        
+        function test() {
+            onCheckoutAmended(newOrder, initialOrder);
+        }
+    </script>
+    <button onclick="test()">Amend Checkout</button>
+</body>
+
+</html>

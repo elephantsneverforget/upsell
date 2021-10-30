@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HTML 5 Boilerplate</title>
+</head>
+
+<body>
+
+    <iframe id="iframe" src="/iframeChild.html" sandbox="allow-scripts allow-forms" tabindex="-1" aria-hidden="true">
+    </iframe>
+    <script>
+        window.addEventListener('message', function (e) {
+            console.log("Outside the iframe. Received message.")
+            console.log(e.data);
+            // Prevent further messages. Push order to DL.
+            if (e.data.command === 'onCheckout') {
+                e.source.postMessage('ack', '*')
+                onCheckout(e.data.initialOrder);
+            }
+            if (e.data.command === 'onCheckoutAmended') {
+                onCheckoutAmended(e.data.newOrder, e.data.initialOrder)
+            }
+        });
+        // This should fire once, when the page is loaded to create the first dl_purchase
+        function onCheckout(initialOrder) {
+            window.dataLayer = window.dataLayer || [];
+            console.log('onCheckout message received in main window.')
+            pushDLPurchase(initialOrder, getLineItems(initialOrder.lineItems))
+        }
+
+        // Function called when upsell is taken. Seperate the new/upsell
+        // items from the items in the initial order and then send a purchase event
+        // for just the new items.
+        function onCheckoutAmended(upsellOrder, initialOrder) {
+            // identify which items were added to the initial order, if any.
+            console.log('onCheckoutAmended message received in main window.')
+            var initialItems = initialOrder.lineItems.map(function (line) { return line.id; });
+            var addedItems = upsellOrder.lineItems.filter(
+                function (line) { return initialItems.indexOf(line.id) < 0; }
+            );
+            // if no new items were added skip tracking
+            if (addedItems.length === 0) return;
+            pushDLPurchase(upsellOrder, getLineItems(addedItems));
+        }
+
+        function pushDLPurchase(order, lineItems) {
+            window.dataLayer.push({
+                'event': 'dl_purchase',
+                'event_id': order.id,
+                'user_properties': getUserProperties(order),
+                'ecommerce': {
+                    'purchase': {
+                        'actionField': getActionField(order),
+                        'products': lineItems
+                    },
+                    'currencyCode': order.currency,
+                },
+            });
+        }
+        // Returns a user properties object
+        function getUserProperties(data) {
+            return {
+                'customer_id': data.customer.id,
+                'customer_email': data.customer.email,
+                'customer_first_name': data.customer.firstName,
+                'customer_last_name': data.customer.lastName,
+                // TODO: None of this is available. No idea why. Call the API?
+                // 'customer_phone': data.order.customer.phone,
+                // 'customer_city': data.order.destination.city,
+                // 'customer_zip': data.order.destination.postal,
+                // 'customer_address_1': data.order.destination.streets[0],
+                // 'customer_address_2': data.order.destination.streets[1],
+                // 'customer_country': data.order.destination.country,
+                // 'customer_province': data.order.destination.province,
+            }
+        }
+
+        // Gets line items in purchase
+        function getLineItems(lineItems) {
+            return lineItems.map(function (item) {
+                return {
+                    'category': item.product.type,
+                    'variant_id': item.variant.id,
+                    'product_id': Number(item.id).toString(),
+                    // TODO: ID is sku?
+                    'id': item.variant.sku,
+                    // TODO: What is this? Check these ids are correct.
+                    'variant': item.variant.sku.toString(),
+                    'name': item.title,
+                    'price': item.price,
+                    'quantity': item.quantity,
+                    // TODO: none of these are available
+                    // 'brand': orderItem.brand,
+                    // 'image': contentItem.images[0]['url'],
+                }
+            });
+        }
+
+        function getActionField(shopifyOrder) {
+            return {
+                'action': "purchase",
+                // TODO: No org available
+                // 'affiliation': data.organization,
+                // TODO: Should this be order id or order number?
+                'id': shopifyOrder.id,
+                // TODO: What should this be?
+                'order_name': shopifyOrder.id,
+                'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
+                'revenue': shopifyOrder.totalPrice,
+                'sub_total': shopifyOrder.subtotalPrice,
+            };
+        }
+
+        function getDiscountAmount(shopifyOrder) {
+            return shopifyOrder.discounts.reduce(function (acc, discount) {
+                return acc += parseFloat(discount.amount);
+            }, 0)
+        }
+    </script>
+</body>
+
+</html>
