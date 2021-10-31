@@ -89,7 +89,7 @@ function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
         'discount_amount': getDiscountAmount(shopifyOrder, isUpsell, addedItems),
         // We can't determine shipping & tax.
         // Revenue - subtotal == shipping + tax.
-        'revenue': isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice, // if upsell revenue of this order minus revenue of last
+        'revenue': isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice,
         'sub_total': isUpsell ? getAdditionalSubtotal(shopifyOrder, initialOrder) : shopifyOrder.subtotalPrice,
     };
 }
