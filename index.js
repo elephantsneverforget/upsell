@@ -1,19 +1,22 @@
 // If this page hasn't been seen, send the initial order to the parent iFrame
 upsellCount = 0;
 console.log('!Shopify.wasPostPurchasePageSeen = ' + !Shopify.wasPostPurchasePageSeen);
+debugger;
 if (Shopify.wasPostPurchasePageSeen) {
     console.log("onCheckout event");
+    debugger;
     onCheckout(window.Shopify.order);
 }
 // If an upsell order is taken, send a message to the parent iframe with both the new and original order
 Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
-    console.log("onCheckoutAmended event");
     // TODO: What happens on second upsell? Does initial Order contain the first upsell?
+    debugger;
     onCheckoutAmended(newOrder, initialOrder);
 });
 
 function onCheckout(initialOrder) {
     window.dataLayer = window.dataLayer || [];
+    debugger;
     pushDLPurchase(initialOrder, getLineItems(initialOrder.lineItems), false)
 }
 
@@ -22,6 +25,7 @@ function onCheckout(initialOrder) {
 // for just the new items.
 function onCheckoutAmended(upsellOrder, initialOrder) {
     // identify which items were added to the initial order, if any.
+    debugger;
     upsellCount++;
     var initialItems = initialOrder.lineItems.map(function (line) { return line.id; });
     var addedItems = upsellOrder.lineItems.filter(
@@ -100,6 +104,11 @@ function getDiscountAmount(shopifyOrder) {
 function getOrderId(orderId, isUpsell) {
     return isUpsell ? orderId.toString() + '-' + upsellCount.toString() : orderId;
 }
+
+function test(){
+    onCheckoutAmended(newOrder, initialOrder);
+}
+
 // Inlcude GTM
 (function (w, d, s, l, i) {
     w[l] = w[l] || []; w[l].push({
