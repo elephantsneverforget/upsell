@@ -30,8 +30,8 @@ test('onCheckoutAmended adds dl_purchase event to Data Layer on first upsell wit
   onCheckoutAmended(firstUpsell, initialOrder);
   expect(window.dataLayer.length).toBe(1);
   expect(window.dataLayer[0].event).toMatch('dl_purchase');
-  expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('20.48');
-  expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('19.50');
+  expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('6.20');
+  expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('3.90');
 });
 
 // Ensure object is added to dl with event dl_purchase and second upsell only sends the additional order value and not total revenue
@@ -39,8 +39,8 @@ test('onCheckoutAmended adds dl_purchase event to Data Layer on second upsell wi
   onCheckoutAmended(secondUpsell, firstUpsell);
   expect(window.dataLayer.length).toBe(1);
   expect(window.dataLayer[0].event).toMatch('dl_purchase');
-  expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('1.58');
-  expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('1.50');
+  expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('1.21');
+  expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('0.15');
 });
 
 function mockWindow() {

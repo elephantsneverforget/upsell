@@ -1,6 +1,5 @@
 // If this page hasn't been seen, send the initial order to the parent iFrame
 upsellCount = 0;
-debugger;
 if (Shopify.wasPostPurchasePageSeen) {
     console.log("onCheckout event");
     onCheckout(window.Shopify.order);
@@ -21,7 +20,6 @@ function onCheckout(initialOrder) {
 // for just the new items.
 function onCheckoutAmended(upsellOrder, initialOrder) {
     // identify which items were added to the initial order, if any.
-    debugger;
     upsellCount++;
     var initialItems = initialOrder.lineItems.map(function (line) { return line.id; });
     var addedItems = upsellOrder.lineItems.filter(
@@ -85,6 +83,7 @@ function getActionField(shopifyOrder, isUpsell, initialOrder) {
         'id': getOrderId(shopifyOrder.id, isUpsell),
         // TODO: What should this be? Assuming this should be the #1240 that shows in order page.
         'order_name': getOrderId(shopifyOrder.number, isUpsell),
+        // This is a number not a percentage
         'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
         // We can't determine shipping & tax.
         // Revenue - subtotal == shipping + tax.
@@ -115,11 +114,11 @@ try {
 } catch (e) { }
 
 // Inlcude GTM
-(function (w, d, s, l, i) {
-    w[l] = w[l] || []; w[l].push({
-        'gtm.start':
-            new Date().getTime(), event: 'gtm.js'
-    }); var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-})(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
+// (function (w, d, s, l, i) {
+//     w[l] = w[l] || []; w[l].push({
+//         'gtm.start':
+//             new Date().getTime(), event: 'gtm.js'
+//     }); var f = d.getElementsByTagName(s)[0],
+//         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+//             'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+// })(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
