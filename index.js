@@ -1,22 +1,18 @@
 // If this page hasn't been seen, send the initial order to the parent iFrame
 upsellCount = 0;
-console.log('!Shopify.wasPostPurchasePageSeen = ' + !Shopify.wasPostPurchasePageSeen);
 debugger;
 if (Shopify.wasPostPurchasePageSeen) {
     console.log("onCheckout event");
-    debugger;
     onCheckout(window.Shopify.order);
 }
 // If an upsell order is taken, send a message to the parent iframe with both the new and original order
 Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
     // TODO: What happens on second upsell? Does initial Order contain the first upsell?
-    debugger;
     onCheckoutAmended(newOrder, initialOrder);
 });
 
 function onCheckout(initialOrder) {
     window.dataLayer = window.dataLayer || [];
-    debugger;
     pushDLPurchase(initialOrder, getLineItems(initialOrder.lineItems), false)
 }
 
@@ -33,17 +29,17 @@ function onCheckoutAmended(upsellOrder, initialOrder) {
     );
     // if no new items were added skip tracking
     if (addedItems.length === 0) return;
-    pushDLPurchase(upsellOrder, getLineItems(addedItems), true);
+    pushDLPurchase(upsellOrder, getLineItems(addedItems), true, initialOrder);
 }
 
-function pushDLPurchase(order, lineItems, isUpsell) {
+function pushDLPurchase(order, lineItems, isUpsell, initialOrder) {
     window.dataLayer.push({
         'event': 'dl_purchase',
         'event_id': getOrderId(order.id, isUpsell),
         'user_properties': getUserProperties(order),
         'ecommerce': {
             'purchase': {
-                'actionField': getActionField(order, isUpsell),
+                'actionField': getActionField(order, isUpsell, initialOrder),
                 'products': lineItems
             },
             'currencyCode': order.currency,
@@ -80,7 +76,7 @@ function getLineItems(lineItems) {
     });
 }
 
-function getActionField(shopifyOrder, isUpsell) {
+function getActionField(shopifyOrder, isUpsell, initialOrder) {
     return {
         'action': "purchase",
         // TODO: No org available
@@ -90,8 +86,10 @@ function getActionField(shopifyOrder, isUpsell) {
         // TODO: What should this be? Assuming this should be the #1240 that shows in order page.
         'order_name': getOrderId(shopifyOrder.number, isUpsell),
         'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
-        'revenue': shopifyOrder.totalPrice,
-        'sub_total': shopifyOrder.subtotalPrice,
+        // We can't determine shipping & tax.
+        // Revenue - subtotal == shipping + tax.
+        'revenue': isUpsell ? (parseFloat(shopifyOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2) : shopifyOrder.totalPrice, // if upsell revenue of this order minus revenue of last
+        'sub_total': isUpsell ? (parseFloat(shopifyOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2) : shopifyOrder.subtotalPrice,
     };
 }
 
@@ -108,6 +106,13 @@ function getOrderId(orderId, isUpsell) {
 function test(){
     onCheckoutAmended(newOrder, initialOrder);
 }
+
+try {
+    module.exports = exports = {
+        onCheckoutAmended: onCheckoutAmended,
+        onCheckout: onCheckout,
+    };
+} catch (e) { }
 
 // Inlcude GTM
 (function (w, d, s, l, i) {

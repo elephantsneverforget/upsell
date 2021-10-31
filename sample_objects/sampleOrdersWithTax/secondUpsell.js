@@ -1,11 +1,11 @@
-// Second upsell, has $.08 in tax, no additional shipping.
+// Second upsell, has $1.50 total price - 90% discount +  $1 shipping + $.06 tax
 module.exports = {
-    "id": 4108954992676,
-    "number": 1328,
-    "checkoutToken": "010c02e3a4994a4cedc407b9b396ae6f",
+    "id": 4109127254052,
+    "number": 1330,
+    "checkoutToken": "62297e86957b48769b836c34ecba28b8",
     "lineItems": [
         {
-            "id": 10418369560612,
+            "id": 10418680365092,
             "finalLinePrice": "5.00",
             "finalPrice": "5.00",
             "lineLevelTotalDiscount": 0,
@@ -31,25 +31,25 @@ module.exports = {
             }
         },
         {
-            "id": 10418370740260,
-            "finalLinePrice": "19.50",
-            "finalPrice": "19.50",
-            "lineLevelTotalDiscount": 0,
+            "id": 10418686296100,
+            "finalLinePrice": "3.90",
+            "finalPrice": "1.95",
+            "lineLevelTotalDiscount": "35.10",
             "optionsWithValues": [
                 {
                     "name": "Title",
                     "value": "Default Title"
                 }
             ],
-            "originalLinePrice": "19.50",
+            "originalLinePrice": "39.00",
             "originalPrice": "19.50",
-            "price": "19.50",
+            "price": "1.95",
             "product": {
                 "id": 6788257415204,
                 "type": ""
             },
             "properties": [],
-            "quantity": 1,
+            "quantity": 2,
             "title": "Trucker Cap",
             "variant": {
                 "id": 39657149366308,
@@ -57,10 +57,10 @@ module.exports = {
             }
         },
         {
-            "id": 10418372182052,
-            "finalLinePrice": "1.50",
-            "finalPrice": "1.50",
-            "lineLevelTotalDiscount": 0,
+            "id": 10418690555940,
+            "finalLinePrice": "0.15",
+            "finalPrice": "0.15",
+            "lineLevelTotalDiscount": "1.35",
             "optionsWithValues": [
                 {
                     "name": "Title",
@@ -69,7 +69,7 @@ module.exports = {
             ],
             "originalLinePrice": "1.50",
             "originalPrice": "1.50",
-            "price": "1.50",
+            "price": "0.15",
             "product": {
                 "id": 6796828442660,
                 "type": ""
@@ -83,8 +83,8 @@ module.exports = {
             }
         }
     ],
-    "subtotalPrice": "21.50",
-    "totalPrice": "23.64",
+    "subtotalPrice": "4.55",
+    "totalPrice": "8.99",
     "currency": "USD",
     "discounts": [
         {
@@ -100,7 +100,7 @@ module.exports = {
         "hasAccount": false,
         "firstName": "Jonathan",
         "lastName": "Cairo",
-        "ordersCount": 35,
-        "totalSpent": "280.50"
+        "ordersCount": 37,
+        "totalSpent": "265.85"
     }
 }

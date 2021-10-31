@@ -1,11 +1,11 @@
-// Has $.30 in tax and $1.00 in shipping in USD with 90% off coupon
+// $5.00 price - 90% discount (price is .50) + shipping ($1.00) + tax (.08) = $1.58 total rev
 module.exports = {
-    "id": 4108954992676,
-    "number": 1328,
-    "checkoutToken": "010c02e3a4994a4cedc407b9b396ae6f",
+    "id": 4109127254052,
+    "number": 1330,
+    "checkoutToken": "62297e86957b48769b836c34ecba28b8",
     "lineItems": [
         {
-            "id": 10418369560612,
+            "id": 10418680365092,
             "finalLinePrice": "5.00",
             "finalPrice": "5.00",
             "lineLevelTotalDiscount": 0,
@@ -48,7 +48,7 @@ module.exports = {
         "hasAccount": false,
         "firstName": "Jonathan",
         "lastName": "Cairo",
-        "ordersCount": 35,
+        "ordersCount": 37,
         "totalSpent": "258.44"
     }
 }
