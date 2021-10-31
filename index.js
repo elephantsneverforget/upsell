@@ -1,18 +1,18 @@
-// If this page hasn't been seen, send the initial order to the parent iFrame
+// If this page hasn't been seen push a dl_purchase event after the initial sale.
 upsellCount = 0;
 if (Shopify.wasPostPurchasePageSeen) {
     console.log("onCheckout event");
     onCheckout(window.Shopify.order);
 }
-// If an upsell order is taken, send a message to the parent iframe with both the new and original order
+
 Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
-    // TODO: What happens on second upsell? Does initial Order contain the first upsell?
     onCheckoutAmended(newOrder, initialOrder);
 });
 
+// Function called after original order is placed, pre upsell.
 function onCheckout(initialOrder) {
     window.dataLayer = window.dataLayer || [];
-    pushDLPurchase(initialOrder, getLineItems(initialOrder.lineItems), false)
+    pushDLPurchase(initialOrder, initialOrder.lineItems, false);
 }
 
 // Function called when upsell is taken. Seperate the new/upsell
@@ -27,18 +27,18 @@ function onCheckoutAmended(upsellOrder, initialOrder) {
     );
     // if no new items were added skip tracking
     if (addedItems.length === 0) return;
-    pushDLPurchase(upsellOrder, getLineItems(addedItems), true, initialOrder);
+    pushDLPurchase(upsellOrder, addedItems, true, initialOrder);
 }
 
-function pushDLPurchase(order, lineItems, isUpsell, initialOrder) {
+function pushDLPurchase(order, addedItems, isUpsell, initialOrder) {
     window.dataLayer.push({
         'event': 'dl_purchase',
         'event_id': getOrderId(order.id, isUpsell),
         'user_properties': getUserProperties(order),
         'ecommerce': {
             'purchase': {
-                'actionField': getActionField(order, isUpsell, initialOrder),
-                'products': lineItems
+                'actionField': getActionField(order, isUpsell, initialOrder, addedItems),
+                'products': getLineItems(addedItems),
             },
             'currencyCode': order.currency,
         },
@@ -74,7 +74,7 @@ function getLineItems(lineItems) {
     });
 }
 
-function getActionField(shopifyOrder, isUpsell, initialOrder) {
+function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
     return {
         'action': "purchase",
         // TODO: No org available
@@ -83,26 +83,47 @@ function getActionField(shopifyOrder, isUpsell, initialOrder) {
         'id': getOrderId(shopifyOrder.id, isUpsell),
         // TODO: What should this be? Assuming this should be the #1240 that shows in order page.
         'order_name': getOrderId(shopifyOrder.number, isUpsell),
-        // This is a number not a percentage
-        'discount_amount': shopifyOrder.discounts.length > 0 ? getDiscountAmount(shopifyOrder) : 0,
+        // This is total discount. Dollar value, not percentage
+        // On the first order we can look at the discounts object. On upsells, we can't.
+        // This needs to be a string.
+        'discount_amount': getDiscountAmount(shopifyOrder, isUpsell, addedItems),
         // We can't determine shipping & tax.
         // Revenue - subtotal == shipping + tax.
-        'revenue': isUpsell ? (parseFloat(shopifyOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2) : shopifyOrder.totalPrice, // if upsell revenue of this order minus revenue of last
-        'sub_total': isUpsell ? (parseFloat(shopifyOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2) : shopifyOrder.subtotalPrice,
+        'revenue': isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice, // if upsell revenue of this order minus revenue of last
+        'sub_total': isUpsell ? getAdditionalSubtotal(shopifyOrder, initialOrder) : shopifyOrder.subtotalPrice,
     };
 }
 
-function getDiscountAmount(shopifyOrder) {
-    return shopifyOrder.discounts.reduce(function (acc, discount) {
-        return acc += parseFloat(discount.amount);
-    }, 0)
+function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
+    if (shopifyOrder.discounts.length === 0) return '0';
+    // If this isn't an upsell we can look at the discounts object.
+    if (!isUpsell) {
+        // Collect all the discounts on the first order.
+        return shopifyOrder.discounts.reduce(function (acc, discount) {
+            return acc += parseFloat(discount.amount);
+        }, 0).toFixed(2).toString();
+    // If this an upsell we have to look at the line item discounts
+    // The discount block provided doesn't only applies to the first order.
+    } else {
+        return addedItems[0].lineLevelTotalDiscount;
+    }
+
 }
 
 function getOrderId(orderId, isUpsell) {
     return isUpsell ? orderId.toString() + '-' + upsellCount.toString() : orderId;
 }
 
-function test(){
+
+function getAdditionalRevenue(newOrder, initialOrder) {
+    return (parseFloat(newOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2);
+}
+
+function getAdditionalSubtotal(newOrder, initialOrder) {
+    return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
+}
+
+function test() {
     onCheckoutAmended(newOrder, initialOrder);
 }
 
