@@ -1,7 +1,7 @@
 // If this page hasn't been seen push a dl_purchase event after the initial sale.
+(function() {
 upsellCount = 0;
-if (Shopify.wasPostPurchasePageSeen) {
-    console.log("onCheckout event");
+if (!Shopify.wasPostPurchasePageSeen) {
     onCheckout(window.Shopify.order);
 }
 
@@ -32,7 +32,7 @@ function onCheckoutAmended(upsellOrder, initialOrder) {
 
 function pushDLPurchase(order, addedItems, isUpsell, initialOrder) {
     window.dataLayer.push({
-        'event': 'dl_purchase',
+        'event': isUpsell ? 'dl_upsell_purchase' : 'dl_purchase',
         'event_id': getOrderId(order.id, isUpsell),
         'user_properties': getUserProperties(order),
         'ecommerce': {
@@ -75,6 +75,8 @@ function getLineItems(lineItems) {
 }
 
 function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
+    var revenue = isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice;
+    var subtotal = isUpsell ? getAdditionalSubtotal(shopifyOrder, initialOrder) : shopifyOrder.subtotalPrice;
     return {
         'action': "purchase",
         // TODO: No org available
@@ -87,10 +89,11 @@ function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
         // On the first order we can look at the discounts object. On upsells, we can't.
         // This needs to be a string.
         'discount_amount': getDiscountAmount(shopifyOrder, isUpsell, addedItems),
-        // We can't determine shipping & tax.
-        // Revenue - subtotal == shipping + tax.
-        'revenue': isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice,
-        'sub_total': isUpsell ? getAdditionalSubtotal(shopifyOrder, initialOrder) : shopifyOrder.subtotalPrice,
+        // We can't determine shipping & tax. For the time being put the difference between subtotal and rev in shipping
+        'shipping': revenue - subtotal,
+        'tax': "0",
+        'revenue': revenue,
+        'sub_total': subtotal,
     };
 }
 
@@ -142,3 +145,4 @@ try {
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
             'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
 })(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');
+})();
