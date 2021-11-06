@@ -1,10 +1,10 @@
 // const index = require('./index');
-const initialOrder_1 = require('./sample_objects/sampleOrdersWithTax/initialOrder.js')
-const firstUpsell_1 = require('./sample_objects/sampleOrdersWithTax/firstUpsell.js')
-const secondUpsell_1 = require('./sample_objects/sampleOrdersWithTax/secondUpsell.js')
-const initialOrder_2 = require('./sample_objects/sampleOrdersWithMultipleItems/initialOrder.js')
-const firstUpsell_2 = require('./sample_objects/sampleOrdersWithMultipleItems/firstUpsell.js')
-const secondUpsell_2 = require('./sample_objects/sampleOrdersWithMultipleItems/secondUpsell.js')
+const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
+const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
+const secondUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/secondUpsell.js')
+const initialOrder_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/initialOrder.js')
+const firstUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/firstUpsell.js')
+const secondUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/secondUpsell.js')
 const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
 mockWindow();
 const { onCheckoutAmended, onCheckout, resetUpsellCount } = require('./index')
