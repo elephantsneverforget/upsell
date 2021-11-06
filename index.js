@@ -2,23 +2,23 @@
 (function() {
 upsellCount = 0;
 if (!Shopify.wasPostPurchasePageSeen) {
-    onCheckout(window.Shopify.order);
+    onCheckout(window.Shopify.order, window.Shopify);
 }
 
 Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
-    onCheckoutAmended(newOrder, initialOrder);
+    onCheckoutAmended(newOrder, initialOrder, window.Shopify);
 });
 
 // Function called after original order is placed, pre upsell.
-function onCheckout(initialOrder) {
+function onCheckout(initialOrder, shopifyObject) {
     window.dataLayer = window.dataLayer || [];
-    pushDLPurchase(initialOrder, initialOrder.lineItems, false);
+    pushDLPurchase(initialOrder, initialOrder.lineItems, false, null, shopifyObject);
 }
 
 // Function called when upsell is taken. Seperate the new/upsell
 // items from the items in the initial order and then send a purchase event
 // for just the new items.
-function onCheckoutAmended(upsellOrder, initialOrder) {
+function onCheckoutAmended(upsellOrder, initialOrder, shopifyObject) {
     // identify which items were added to the initial order, if any.
     upsellCount++;
     // The line item id is unique for order items, even if the items contained are the same.
@@ -29,17 +29,17 @@ function onCheckoutAmended(upsellOrder, initialOrder) {
     );
     // if no new items were added skip tracking
     if (addedItems.length === 0) return;
-    pushDLPurchase(upsellOrder, addedItems, true, initialOrder);
+    pushDLPurchase(upsellOrder, addedItems, true, initialOrder, shopifyObject);
 }
 
-function pushDLPurchase(order, addedItems, isUpsell, initialOrder) {
+function pushDLPurchase(order, addedItems, isUpsell, initialOrder, shopifyObject) {
     window.dataLayer.push({
         'event': isUpsell ? 'dl_upsell_purchase' : 'dl_purchase',
         'event_id': getOrderId(order.id, isUpsell),
         'user_properties': getUserProperties(order),
         'ecommerce': {
             'purchase': {
-                'actionField': getActionField(order, isUpsell, initialOrder, addedItems),
+                'actionField': getActionField(order, isUpsell, initialOrder, addedItems, shopifyObject),
                 'products': getLineItems(addedItems),
             },
             'currencyCode': order.currency,
@@ -61,38 +61,36 @@ function getLineItems(lineItems) {
     return lineItems.map(function (item) {
         return {
             'category': item.product.type,
-            'variant_id': item.variant.id,
+            'variant_id': item.variant.id.toString(),
             'product_id': Number(item.id).toString(),
-            // TODO: ID is sku?
             'id': item.variant.sku,
-            // TODO: We don't get variant title details
+            // We don't get variant title details
             'variant': item.title,
             'name': item.title,
-            'price': item.price,
-            'quantity': item.quantity,
-            // TODO: none of these are available
+            'price': item.price.toString(),
+            'quantity': item.quantity.toString(),
+            // Not available
             // 'brand': orderItem.brand,
         }
     });
 }
 
-function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
-    var revenue = isUpsell ? getAdditionalRevenue(shopifyOrder, initialOrder) : shopifyOrder.totalPrice;
-    var subtotal = isUpsell ? getAdditionalSubtotal(shopifyOrder, initialOrder) : shopifyOrder.subtotalPrice;
+function getActionField(order, isUpsell, initialOrder, addedItems, shopifyObject) {
+    var revenue = isUpsell ? getAdditionalRevenue(order, initialOrder) : order.totalPrice;
+    var subtotal = isUpsell ? getAdditionalSubtotal(order, initialOrder) : order.subtotalPrice;
     return {
         'action': "purchase",
-        // TODO: No org available
-        // 'affiliation': data.organization,
-        // TODO: Should this be order id or order number?
-        'id': getOrderId(shopifyOrder.id, isUpsell).toString(),
-        // TODO: What should this be? Assuming this should be the #1240 that shows in order page.
-        'order_name': getOrderId(shopifyOrder.number, isUpsell).toString(),
+        'affiliation': shopifyObject.Checkout.apiHost,
+        // This is the longer order id that shows in the url on an order page
+        'id': getOrderId(order.id, isUpsell).toString(),
+        // This should be the #1240 that shows in order page.
+        'order_name': getOrderId(order.number, isUpsell).toString(),
         // This is total discount. Dollar value, not percentage
         // On the first order we can look at the discounts object. On upsells, we can't.
         // This needs to be a string.
-        'discount_amount': getDiscountAmount(shopifyOrder, isUpsell, addedItems),
+        'discount_amount': getDiscountAmount(order, isUpsell, addedItems),
         // We can't determine shipping & tax. For the time being put the difference between subtotal and rev in shipping
-        'shipping': revenue - subtotal,
+        'shipping': (parseFloat(revenue) - parseFloat(subtotal)).toString(),
         'tax': '0',
         'revenue': revenue,
         'sub_total': subtotal,
