@@ -1,6 +1,7 @@
 // If this page hasn't been seen push a dl_purchase event after the initial sale.
 (function() {
 upsellCount = 0;
+// EVENT HOOKS -----------------------------------------------------------
 if (!Shopify.wasPostPurchasePageSeen) {
     onCheckout(window.Shopify.order, window.Shopify);
 }
@@ -8,7 +9,9 @@ if (!Shopify.wasPostPurchasePageSeen) {
 Shopify.on('CheckoutAmended', function (newOrder, initialOrder) {
     onCheckoutAmended(newOrder, initialOrder, window.Shopify);
 });
+// END EVENT HOOKS -------------------------------------------------------
 
+// UTILS -----------------------------------------------------------------
 // Function called after original order is placed, pre upsell.
 function onCheckout(initialOrder, shopifyObject) {
     window.dataLayer = window.dataLayer || [];
@@ -78,9 +81,14 @@ function getLineItems(lineItems) {
 function getActionField(order, isUpsell, initialOrder, addedItems, shopifyObject) {
     var revenue = isUpsell ? getAdditionalRevenue(order, initialOrder) : order.totalPrice;
     var subtotal = isUpsell ? getAdditionalSubtotal(order, initialOrder) : order.subtotalPrice;
+    try {
+        affiliation = new URL(shopifyObject.pageUrl).hostname;
+    } catch (e){
+        affiliation = '';
+    }
     return {
         'action': "purchase",
-        'affiliation': shopifyObject.Checkout.apiHost,
+        'affiliation': affiliation,
         // This is the longer order id that shows in the url on an order page
         'id': getOrderId(order.id, isUpsell).toString(),
         // This should be the #1240 that shows in order page.

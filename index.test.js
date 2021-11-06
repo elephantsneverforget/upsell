@@ -5,7 +5,7 @@ const secondUpsell_1 = require('./sample_objects/sampleOrdersWithTax/secondUpsel
 const initialOrder_2 = require('./sample_objects/sampleOrdersWithMultipleItems/initialOrder.js')
 const firstUpsell_2 = require('./sample_objects/sampleOrdersWithMultipleItems/firstUpsell.js')
 const secondUpsell_2 = require('./sample_objects/sampleOrdersWithMultipleItems/secondUpsell.js')
-const shopifyObject = require('./sample_objects/shopifyObjectOnOrderStatusPageAfterUpsellPurchase.js');
+const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
 mockWindow();
 const { onCheckoutAmended, onCheckout, resetUpsellCount } = require('./index')
 /**
@@ -21,6 +21,7 @@ describe('Sample order set 1', () => {
     onCheckout(initialOrder_1, shopifyObject);
     expect(window.dataLayer.length).toBe(1);
     expect(window.dataLayer[0].event).toMatch('dl_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.affiliation).toEqual('store.getelevar.com');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('1.58');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('0.50');
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
