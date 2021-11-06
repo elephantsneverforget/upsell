@@ -21,9 +21,11 @@ function onCheckout(initialOrder) {
 function onCheckoutAmended(upsellOrder, initialOrder) {
     // identify which items were added to the initial order, if any.
     upsellCount++;
-    var initialItems = initialOrder.lineItems.map(function (line) { return line.id; });
+    // The line item id is unique for order items, even if the items contained are the same.
+    // We can use this to seperate out items from the initial order from the upsell.
+    var initialItemIds = initialOrder.lineItems.map(function (line) { return line.id; });
     var addedItems = upsellOrder.lineItems.filter(
-        function (line) { return initialItems.indexOf(line.id) < 0; }
+        function (line) { return initialItemIds.indexOf(line.id) < 0; }
     );
     // if no new items were added skip tracking
     if (addedItems.length === 0) return;
@@ -63,8 +65,8 @@ function getLineItems(lineItems) {
             'product_id': Number(item.id).toString(),
             // TODO: ID is sku?
             'id': item.variant.sku,
-            // TODO: What is this? Check these ids are correct.
-            'variant': item.variant.sku.toString(),
+            // TODO: We don't get variant title details
+            'variant': item.title,
             'name': item.title,
             'price': item.price,
             'quantity': item.quantity,
@@ -82,16 +84,16 @@ function getActionField(shopifyOrder, isUpsell, initialOrder, addedItems) {
         // TODO: No org available
         // 'affiliation': data.organization,
         // TODO: Should this be order id or order number?
-        'id': getOrderId(shopifyOrder.id, isUpsell),
+        'id': getOrderId(shopifyOrder.id, isUpsell).toString(),
         // TODO: What should this be? Assuming this should be the #1240 that shows in order page.
-        'order_name': getOrderId(shopifyOrder.number, isUpsell),
+        'order_name': getOrderId(shopifyOrder.number, isUpsell).toString(),
         // This is total discount. Dollar value, not percentage
         // On the first order we can look at the discounts object. On upsells, we can't.
         // This needs to be a string.
         'discount_amount': getDiscountAmount(shopifyOrder, isUpsell, addedItems),
         // We can't determine shipping & tax. For the time being put the difference between subtotal and rev in shipping
         'shipping': revenue - subtotal,
-        'tax': "0",
+        'tax': '0',
         'revenue': revenue,
         'sub_total': subtotal,
     };
@@ -134,6 +136,7 @@ try {
     module.exports = exports = {
         onCheckoutAmended: onCheckoutAmended,
         onCheckout: onCheckout,
+        resetUpsellCount: function(){upsellCount = 0;},
     };
 } catch (e) { }
 
