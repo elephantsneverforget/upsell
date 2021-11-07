@@ -27,7 +27,7 @@ describe('Sample order set 1', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.products[1]).toBeUndefined();
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('4.50');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-US'));
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on first upsell with correct incremental revenue and subtotal', () => {
@@ -39,7 +39,7 @@ describe('Sample order set 1', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('2');
     expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('35.10');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-1'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US1'));
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on second upsell with correct incremental revenue and subtotal', () => {
@@ -51,7 +51,7 @@ describe('Sample order set 1', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('1.35');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-2'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US2'));
   });
 })
 
@@ -67,7 +67,7 @@ describe('Sample order set 2', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.products[1].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('2.70');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-US'));
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on first upsell with correct incremental revenue and subtotal with multiple items in order', () => {
@@ -79,7 +79,7 @@ describe('Sample order set 2', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('2');
     expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('35.10');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-1'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US1'));
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on second upsell with correct incremental revenue and subtotal with multiple items in order', () => {
@@ -91,7 +91,7 @@ describe('Sample order set 2', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('1.35');
-    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-2'));
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US2'));
   });
 })
 

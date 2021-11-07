@@ -122,7 +122,7 @@ function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
 }
 
 function getOrderId(orderId, isUpsell) {
-    return isUpsell ? orderId.toString() + '-' + upsellCount.toString() : orderId;
+    return isUpsell ? orderId.toString() + '-US' + upsellCount.toString() : orderId;
 }
 
 
