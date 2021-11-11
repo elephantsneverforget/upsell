@@ -106,6 +106,7 @@ function getActionField(order, isUpsell, initialOrder, addedItems, shopifyObject
 }
 
 function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
+    if (shopifyOrder.discounts === null || typeof shopifyOrder.discounts === 'undefined') return '0';
     if (shopifyOrder.discounts.length === 0) return '0';
     // If this isn't an upsell we can look at the discounts object.
     if (!isUpsell) {

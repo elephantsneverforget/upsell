@@ -5,6 +5,9 @@ const secondUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/seco
 const initialOrder_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/initialOrder.js')
 const firstUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/firstUpsell.js')
 const secondUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/secondUpsell.js')
+const initialOrder_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/initialOrder.js')
+const firstUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/firstUpsell.js')
+const secondUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/secondUpsell.js')
 const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
 mockWindow();
 const { onCheckoutAmended, onCheckout, resetUpsellCount } = require('./index')
@@ -91,6 +94,44 @@ describe('Sample order set 2', () => {
     expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('1.35');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US2'));
+  });
+})
+
+describe('Sample order set 3', () => {
+  // Tests for orders where discount is null.
+  test('onCheckout adds dl_purchase event to Data Layer with multiple items in initial order', () => {
+    resetUpsellCount();
+    onCheckout(initialOrder_3, shopifyObject);
+    expect(window.dataLayer.length).toBe(1);
+    expect(window.dataLayer[0].event).toMatch('dl_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('2.63');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('1.50');
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('0');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-US'));
+  });
+
+  test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on first upsell with correct incremental revenue and subtotal with multiple items in order', () => {
+    onCheckoutAmended(firstUpsell_3, initialOrder_3, shopifyObject);
+    expect(window.dataLayer.length).toBe(1);
+    expect(window.dataLayer[0].event).toMatch('dl_upsell_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('1.58');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('1.50');
+    expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('0');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US1'));
+  });
+
+  test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on second upsell with correct incremental revenue and subtotal with multiple items in order', () => {
+    onCheckoutAmended(secondUpsell_3, firstUpsell_3, shopifyObject);
+    expect(window.dataLayer.length).toBe(1);
+    expect(window.dataLayer[0].event).toMatch('dl_upsell_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('1.58');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('1.50');
+    expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('0');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US2'));
   });
 })
