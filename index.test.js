@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 // const index = require('./index');
 const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
 const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
@@ -9,11 +13,10 @@ const initialOrder_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDi
 const firstUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/firstUpsell.js')
 const secondUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/secondUpsell.js')
 const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
+
 mockWindow();
 const { onCheckoutAmended, onCheckout, resetUpsellCount } = require('./index')
-/**
- * @jest-environment jsdom
- */
+
 
 beforeEach(() => {
   window.dataLayer = [];
