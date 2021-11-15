@@ -1,6 +1,6 @@
 // If this page hasn't been seen push a dl_purchase event after the initial sale.
+var upsellCount = 0;
 (function() {
-upsellCount = 0;
 // EVENT HOOKS -----------------------------------------------------------
 if (!Shopify.wasPostPurchasePageSeen) {
     onCheckout(window.Shopify.order, window.Shopify);
@@ -117,7 +117,9 @@ function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
     // If this an upsell we have to look at the line item discounts
     // The discount block provided doesn't only applies to the first order.
     } else {
-        return addedItems[0].lineLevelTotalDiscount;
+        return addedItems.reduce(function (acc, addedItem) {
+            return acc += parseFloat(addedItem.lineLevelTotalDiscount);
+        }, 0).toFixed(2).toString();
     }
 
 }
