@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-const {onInitialOrder, onUpsellOrder} = require('./order');
+mockWindow();
+const {onInitialOrder, onUpsellOrder, resetUpsellCount} = require('./order');
 const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
 const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
 const secondUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/secondUpsell.js')
@@ -12,7 +13,6 @@ const initialOrder_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDi
 const firstUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/firstUpsell.js')
 const secondUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/secondUpsell.js')
 const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
-mockWindow();
 
 
 beforeEach(() => {

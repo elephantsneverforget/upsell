@@ -1,17 +1,33 @@
+// EVENT HOOKS -----------------------------------------------------------
+let upsellCount = 0;
+// eslint-disable-next-line no-unexpected-multiline
+(function () {
+    // eslint-disable-next-line no-undef
+    if (!Shopify.wasPostPurchasePageSeen) {
+        onInitialOrder(window.Shopify.order, window.Shopify);
+
+    }
+    // eslint-disable-next-line no-undef
+    Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
+        onUpsellOrder(newRawOrder, initialRawOrder, window.Shopify);
+    });
+})();
+// END EVENT HOOKS -------------------------------------------------------
+
 // eslint-disable-next-line no-unused-vars
 class Order {
     constructor(rawOrder, rawOrderFormatter, dlEventName, upsellCount, shopifyObject) {
         this._shopifyObject = shopifyObject;
         this._rawOrder = rawOrder;
         this._dlEventName = dlEventName;
-        this._isUpsell = upsellCount ? upsellCount : 0;
+        this._isUpsell = upsellCount ? true : false;
         this._upsellCount = upsellCount;
-        this._formattedOrder = rawOrderFormatter(rawOrder, dlEventName, this._isUpsell, upsellCount);
+        this._formattedOrderForDL = rawOrderFormatter(rawOrder, dlEventName, this._isUpsell, upsellCount, shopifyObject);
     }
 
     pushFormattedOrderToDL() {
         window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push(this.order);
+        window.dataLayer.push(this._formattedOrderForDL);
     }
 }
 
@@ -25,15 +41,17 @@ function createRawOrderFromDiff(initialRawOrder, upsellRawOrder) {
     const upsellOrderLineItems = upsellRawOrder.lineItems.filter((lineItem) => {
         return initialOrderItemIds.indexOf(lineItem.id) < 0;
     })
+    const subtotalPrice = getAdditionalSubtotal(upsellRawOrder, initialRawOrder);
+    const totalPrice = getAdditionalRevenue(upsellRawOrder, initialRawOrder);
     delete upsellRawOrder['lineItems'];
     delete upsellRawOrder['subtotalPrice'];
     delete upsellRawOrder['totalPrice'];
     // discount field applies to initial order only.
-    delete upsellRawOrder['discounts'];
+    // delete upsellRawOrder['discounts'];
     const rawOrder = {
         'lineItems': upsellOrderLineItems,
-        'subtotalPrice': getAdditionalSubtotal(upsellRawOrder, initialRawOrder),
-        'totalPrice': getAdditionalRevenue(upsellRawOrder, initialRawOrder),
+        subtotalPrice,
+        totalPrice,
         ...upsellRawOrder,
     }
     return rawOrder;
@@ -86,9 +104,9 @@ function getLineItems(lineItems) {
     });
 }
 
-function getActionField(rawOrder, isUpsell, initialOrder, addedItems, shopifyObject) {
+function getActionField(rawOrder, isUpsell, shopifyObject) {
     try {
-        affiliation = new URL(shopifyObject.pageUrl).hostname;
+        var affiliation = new URL(shopifyObject.pageUrl).hostname;
     } catch (e) {
         affiliation = '';
     }
@@ -96,12 +114,12 @@ function getActionField(rawOrder, isUpsell, initialOrder, addedItems, shopifyObj
         'action': "purchase",
         'affiliation': affiliation,
         // This is the longer order id that shows in the url on an order page
-        'id': getOrderId(rawOrder.id, isUpsell).toString(),
+        'id': getOrderId(rawOrder.id, isUpsell, upsellCount).toString(),
         // This should be the #1240 that shows in order page.
-        'order_name': getOrderId(rawOrder.number, isUpsell).toString(),
+        'order_name': getOrderId(rawOrder.number, isUpsell, upsellCount).toString(),
         // This is total discount. Dollar value, not percentage
         // On the first order we can look at the discounts object. On upsells, we can't.
-        'discount_amount': getDiscountAmount(rawOrder, isUpsell, addedItems),
+        'discount_amount': getDiscountAmount(rawOrder, isUpsell),
         // We can't determine shipping & tax. For the time being put the difference between subtotal and rev in shipping
         'shipping': (parseFloat(rawOrder.totalPrice) - parseFloat(rawOrder.subtotalPrice)).toString(),
         'tax': '0',
@@ -110,7 +128,7 @@ function getActionField(rawOrder, isUpsell, initialOrder, addedItems, shopifyObj
     };
 }
 
-function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
+function getDiscountAmount(shopifyOrder, isUpsell) {
     if (shopifyOrder.discounts === null || typeof shopifyOrder.discounts === 'undefined') return '0';
     if (shopifyOrder.discounts.length === 0) return '0';
     // If this isn't an upsell we can look at the discounts object.
@@ -122,7 +140,7 @@ function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
         // If this an upsell we have to look at the line item discounts
         // The discount block provided only applies to the first order.
     } else {
-        return addedItems.reduce(function (acc, addedItem) {
+        return shopifyOrder.lineItems.reduce(function (acc, addedItem) {
             return acc += parseFloat(addedItem.lineLevelTotalDiscount);
         }, 0).toFixed(2).toString();
     }
@@ -142,24 +160,8 @@ function getOrderId(orderId, isUpsell, upsellCount) {
 }
 
 
-// EVENT HOOKS -----------------------------------------------------------
-let upsellCount = 0;
-// eslint-disable-next-line no-unexpected-multiline
-(function () {
-    // eslint-disable-next-line no-undef
-    if (!Shopify.wasPostPurchasePageSeen) {
-        onInitialOrder(window.Shopify);
-
-    }
-    // eslint-disable-next-line no-undef
-    Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
-        onUpsellOrder(newRawOrder, initialRawOrder, window.Shopify);
-    });
-})();
-// END EVENT HOOKS -------------------------------------------------------
-
-function onInitialOrder(shopifyObject) {
-    const rawOrder = shopifyObject.order;
+function onInitialOrder(initialOrder, shopifyObject) {
+    const rawOrder = initialOrder;
     const order = new Order(rawOrder, rawOrderFormatter, 'dl_purchase', upsellCount, shopifyObject);
     order.pushFormattedOrderToDL();
 }
@@ -175,8 +177,7 @@ try {
     module.exports = exports = {
         onUpsellOrder,
         onInitialOrder,
-        resetUpsellCount: function(){upsellCount = 0;}
+        resetUpsellCount: function () { upsellCount = 0; }
     };
-// eslint-disable-next-line no-empty
+    // eslint-disable-next-line no-empty
 } catch (e) { }
-
