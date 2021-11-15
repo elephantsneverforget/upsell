@@ -29,6 +29,32 @@ module.exports = {
                 "id": 39657149366308,
                 "sku": "4563504_8746"
             }
+        },
+        {
+            "id": 10435506569255,
+            "finalLinePrice": "3.90",
+            "finalPrice": "1.95",
+            "lineLevelTotalDiscount": "35.10",
+            "optionsWithValues": [
+                {
+                    "name": "Title",
+                    "value": "Default Title"
+                }
+            ],
+            "originalLinePrice": "39.00",
+            "originalPrice": "19.50",
+            "price": "1.95",
+            "product": {
+                "id": 6788257415204,
+                "type": ""
+            },
+            "properties": [],
+            "quantity": 2,
+            "title": "Trucker Cap",
+            "variant": {
+                "id": 39657149366308,
+                "sku": "4563504_8746"
+            }
         }
     ],
     "subtotalPrice": "4.20",
