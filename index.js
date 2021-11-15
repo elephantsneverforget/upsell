@@ -1,6 +1,6 @@
 // If this page hasn't been seen push a dl_purchase event after the initial sale.
+var upsellCount = 0;
 (function() {
-upsellCount = 0;
 // EVENT HOOKS -----------------------------------------------------------
 if (!Shopify.wasPostPurchasePageSeen) {
     onCheckout(window.Shopify.order, window.Shopify);

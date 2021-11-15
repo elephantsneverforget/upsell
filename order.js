@@ -89,7 +89,7 @@ function getLineItems(lineItems) {
 function getActionField(rawOrder, isUpsell, initialOrder, addedItems, shopifyObject) {
     try {
         affiliation = new URL(shopifyObject.pageUrl).hostname;
-    } catch (e){
+    } catch (e) {
         affiliation = '';
     }
     return {
@@ -119,8 +119,8 @@ function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {
         return shopifyOrder.discounts.reduce(function (acc, discount) {
             return acc += parseFloat(discount.amount);
         }, 0).toFixed(2).toString();
-    // If this an upsell we have to look at the line item discounts
-    // The discount block provided only applies to the first order.
+        // If this an upsell we have to look at the line item discounts
+        // The discount block provided only applies to the first order.
     } else {
         return addedItems.reduce(function (acc, addedItem) {
             return acc += parseFloat(addedItem.lineLevelTotalDiscount);
@@ -141,11 +141,6 @@ function getOrderId(orderId, isUpsell, upsellCount) {
     return isUpsell ? orderId.toString() + '-US' + upsellCount.toString() : orderId;
 }
 
-module.exports = {
-    rawOrderFormatter,
-    createRawOrderFromDiff,
-    Order,
-}
 
 // EVENT HOOKS -----------------------------------------------------------
 let upsellCount = 0;
@@ -163,15 +158,25 @@ let upsellCount = 0;
 })();
 // END EVENT HOOKS -------------------------------------------------------
 
-function onInitialOrder(shopifyObject){
+function onInitialOrder(shopifyObject) {
     const rawOrder = shopifyObject.order;
     const order = new Order(rawOrder, rawOrderFormatter, 'dl_purchase', upsellCount, shopifyObject);
     order.pushFormattedOrderToDL();
 }
 
-function onUpsellOrder(newRawOrder, initialRawOrder, shopifyObject){
+function onUpsellOrder(newRawOrder, initialRawOrder, shopifyObject) {
     upsellCount++;
     const rawOrder = createRawOrderFromDiff(initialRawOrder, newRawOrder)
     const order = new Order(rawOrder, rawOrderFormatter, 'dl_upsell_purchase', upsellCount, shopifyObject);
     order.pushFormattedOrderToDL();
 }
+
+try {
+    module.exports = exports = {
+        onUpsellOrder,
+        onInitialOrder,
+        resetUpsellCount: function(){upsellCount = 0;}
+    };
+// eslint-disable-next-line no-empty
+} catch (e) { }
+
