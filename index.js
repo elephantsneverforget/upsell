@@ -2,7 +2,7 @@
 var upsellCount = 0;
 (function() {
 // EVENT HOOKS -----------------------------------------------------------
-if (!Shopify.wasPostPurchasePageSeen) {
+if (Shopify.wasPostPurchasePageSeen) {
     onCheckout(window.Shopify.order, window.Shopify);
 }
 
