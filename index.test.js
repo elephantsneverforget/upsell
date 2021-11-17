@@ -160,7 +160,7 @@ function mockWindow() {
   });
   Object.defineProperty(global, "Shopify", {
     value: {
-      wasPostPurchasePageSeen: true,
+      wasPostPurchasePageSeen: false,
       'on': function () { }
     },
     writable: true
