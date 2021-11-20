@@ -3,12 +3,14 @@ let upsellCount = 0;
 // eslint-disable-next-line no-unexpected-multiline
 (function () {
     // eslint-disable-next-line no-undef
-    if (!Shopify.wasPostPurchasePageSeen) {
+    if (Shopify.wasPostPurchasePageSeen) {
+        // onOrder(window.Shopify.order, window.shopify, false, null)
         onInitialOrder(window.Shopify.order, window.Shopify);
 
     }
     // eslint-disable-next-line no-undef
     Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
+        // onOrder(initialRawOrder, window.shopify, true, newRawOrder)
         onUpsellOrder(newRawOrder, initialRawOrder, window.Shopify);
     });
 })();
@@ -147,18 +149,15 @@ function getDiscountAmount(shopifyOrder, isUpsell) {
 
 }
 
-function getAdditionalRevenue(newOrder, initialOrder) {
-    return (parseFloat(newOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2);
-}
-
-function getAdditionalSubtotal(newOrder, initialOrder) {
-    return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
-}
-
-function getOrderId(orderId, isUpsell, upsellCount) {
-    return isUpsell ? orderId.toString() + '-US' + upsellCount.toString() : orderId;
-}
-
+// How do I make a decision on a function like this? Should it be 2 functions?
+// If it's a single function how should the parameters used? Should I pass null?
+// Is there a rule of thumb I can use?
+// function onOrder(initialRawOrder, shopifyObject, isUpsell, newRawOrder) {
+//     if (isUpsell) upsellCount++;
+//     const rawOrder = isUpsell ? createRawOrderFromDiff(initialRawOrder, newRawOrder) : initialRawOrder;
+//     const order = new Order(rawOrder, rawOrderFormatter, 'dl_upsell_purchase', upsellCount, shopifyObject);
+//     order.pushFormattedOrderToDL();
+// }
 
 function onInitialOrder(initialOrder, shopifyObject) {
     const rawOrder = initialOrder;
@@ -173,11 +172,25 @@ function onUpsellOrder(newRawOrder, initialRawOrder, shopifyObject) {
     order.pushFormattedOrderToDL();
 }
 
+function getAdditionalRevenue(newOrder, initialOrder) {
+    return (parseFloat(newOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2);
+}
+
+function getAdditionalSubtotal(newOrder, initialOrder) {
+    return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
+}
+
+function getOrderId(orderId, isUpsell, upsellCount) {
+    return isUpsell ? orderId.toString() + '-US' + upsellCount.toString() : orderId;
+}
+
+
 try {
     module.exports = exports = {
         onUpsellOrder,
         onInitialOrder,
-        resetUpsellCount: function () { upsellCount = 0; }
+        resetUpsellCount: function () { upsellCount = 0; },
+        Order
     };
     // eslint-disable-next-line no-empty
 } catch (e) { }
