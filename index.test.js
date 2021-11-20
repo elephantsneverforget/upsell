@@ -138,7 +138,7 @@ describe('Sample order set 3', () => {
 
 describe('One off weird order 1. product with $0 line item still pushes to data layer', () => {
   // Tests for orders where discount is null.
-  test('onCheckout adds dl_purchase event to Data Layer with multiple items in initial order', () => {
+  test('onCheckout adds dl_purchase event to Data Layer', () => {
     resetUpsellCount();
     onCheckout(oneOff_1, shopifyObject);
     expect(window.dataLayer.length).toBe(1);
