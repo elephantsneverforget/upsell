@@ -4,99 +4,91 @@ let upsellCount = 0;
 (function () {
     // eslint-disable-next-line no-undef
     if (Shopify.wasPostPurchasePageSeen) {
-        const initialRawOrder = window.Shopify.order;
-        onOrder(initialRawOrder, null, window.Shopify)
+        // onOrder(window.Shopify.order, window.shopify, false, null)
+        onInitialOrder(window.Shopify.order, window.Shopify);
+
     }
     // eslint-disable-next-line no-undef
     Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
-        onOrder(initialRawOrder, newRawOrder, window.Shopify)
+        // onOrder(initialRawOrder, window.shopify, true, newRawOrder)
+        onUpsellOrder(newRawOrder, initialRawOrder, window.Shopify);
     });
 })();
 // END EVENT HOOKS -------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
 class Order {
-    constructor() { }
-
-    rawOrderFormatter() {
-        throw new Error('Must subclass rawOrderFormatter with implementation.');
+    constructor(rawOrder, rawOrderFormatter, dlEventName, upsellCount, shopifyObject) {
+        this._shopifyObject = shopifyObject;
+        this._rawOrder = rawOrder;
+        this._dlEventName = dlEventName;
+        this._upsellCount = upsellCount;
+        this._formattedOrderForDL = rawOrderFormatter(rawOrder, dlEventName, this._isUpsell, upsellCount, shopifyObject);
     }
 
+    rawOrderFormatter() {
+        throw new Error('must subclass with implementation');
+    }
+
+
     pushFormattedOrderToDL() {
-        window.dataLayer.push(this.formattedOrder);
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(this.formattedOrder());
     }
 }
 
-class OCUOrder extends Order {
-    constructor(rawOrder, dlEventName, affiliation) {
-        super();
-        this.isUpsell = false;
-        this.upsellCount = null;
-        this.rawOrder = rawOrder;
-        this.orderId = rawOrder.id;
-        this.formattedOrder = this.rawOrderFormatter(rawOrder, dlEventName, affiliation);
-
+class ShopifyOrder extends Order {
+    constructor( orderArgs, shopifyOrderArgs ) {
+        this.isUpsell = shopifyOrderArgs.isUpsell;
+        super(orderArgs);
     }
 
     // Takes an order and formats it for the data layer
-    rawOrderFormatter(rawOrder, dlEventName, affiliation) {
+    // eslint-disable-next-line no-unused-vars
+    rawOrderFormatter() {
         const orderFormattedForDL = {
             'event': dlEventName,
-            'event_id': this.getOrderId(),
-            'user_properties': getUserProperties(rawOrder),
+            'event_id': this.isUpsell
+              ? this.orderId.toString() + '-US' + upsellCount.toString()
+              : this.orderId,
+            'user_properties': getUserProperties(),
             'ecommerce': {
                 'purchase': {
-                    'actionField': getActionField(rawOrder, this.isUpsell, affiliation),
-                    'products': getLineItems(rawOrder.lineItems),
+                    'actionField': getActionField(),
+                    'products': getLineItems(),
                 },
                 'currencyCode': rawOrder.currency,
             },
         }
         return orderFormattedForDL;
     }
-
-    getOrderId() {
-        return this.isUpsell ? this.orderId.toString() + '-US' + this.upsellCount.toString() : this.orderId;
-    }
 }
 
-
-class OCUUpsellOrder extends OCUOrder {
-    constructor(initialRawOrder, upsellRawOrder, upsellCount, dlEventName, affiliation) {
-        super();
-        this.rawOrder = this.createRawOrderFromDiff(initialRawOrder, upsellRawOrder);
-        this.formattedOrder = this.rawOrderFormatter(this.rawOrder, dlEventName, affiliation)
-        this.upsellCount = upsellCount;
-        this.dlEventName = dlEventName;
-        this.isUpsell = true;
+// Creates a raw order based on diffing an initial order and upsell order
+// eslint-disable-next-line no-unused-vars
+function createRawOrderFromDiff(initialRawOrder, upsellRawOrder) {
+    upsellRawOrder = { ...upsellRawOrder };
+    initialRawOrder = { ...initialRawOrder };
+    // get the new line items that aren't in the previous order
+    const initialOrderItemIds = initialRawOrder.lineItems.map((lineItem) => lineItem.id);
+    const upsellOrderLineItems = upsellRawOrder.lineItems.filter((lineItem) => {
+        return initialOrderItemIds.indexOf(lineItem.id) < 0;
+    })
+    const subtotalPrice = getAdditionalSubtotal(upsellRawOrder, initialRawOrder);
+    const totalPrice = getAdditionalRevenue(upsellRawOrder, initialRawOrder);
+    delete upsellRawOrder['lineItems'];
+    delete upsellRawOrder['subtotalPrice'];
+    delete upsellRawOrder['totalPrice'];
+    // discount field applies to initial order only.
+    // delete upsellRawOrder['discounts'];
+    const rawOrder = {
+        'lineItems': upsellOrderLineItems,
+        subtotalPrice,
+        totalPrice,
+        ...upsellRawOrder,
     }
-
-    // Creates a raw order based on diffing an initial order and upsell order
-    createRawOrderFromDiff(initialRawOrder, upsellRawOrder) {
-        upsellRawOrder = { ...upsellRawOrder };
-        initialRawOrder = { ...initialRawOrder };
-        // get the new line items that aren't in the previous order
-        const initialOrderItemIds = initialRawOrder.lineItems.map((lineItem) => lineItem.id);
-        const upsellOrderLineItems = upsellRawOrder.lineItems.filter((lineItem) => {
-            return initialOrderItemIds.indexOf(lineItem.id) < 0;
-        })
-        const subtotalPrice = getAdditionalSubtotal(upsellRawOrder, initialRawOrder);
-        const totalPrice = getAdditionalRevenue(upsellRawOrder, initialRawOrder);
-        delete upsellRawOrder['lineItems'];
-        delete upsellRawOrder['subtotalPrice'];
-        delete upsellRawOrder['totalPrice'];
-        // discount field applies to initial order only.
-        // delete upsellRawOrder['discounts'];
-        const rawOrder = {
-            'lineItems': upsellOrderLineItems,
-            subtotalPrice,
-            totalPrice,
-            ...upsellRawOrder,
-        }
-        return rawOrder;
-    }
+    return rawOrder;
 }
-
 
 // Returns a user properties object
 function getUserProperties(data) {
@@ -127,7 +119,12 @@ function getLineItems(lineItems) {
     });
 }
 
-function getActionField(rawOrder, isUpsell, affiliation) {
+function getActionField(rawOrder, isUpsell, shopifyObject) {
+    try {
+        var affiliation = new URL(shopifyObject.pageUrl).hostname;
+    } catch (e) {
+        affiliation = '';
+    }
     return {
         'action': "purchase",
         'affiliation': affiliation,
@@ -165,37 +162,28 @@ function getDiscountAmount(shopifyOrder, isUpsell) {
 
 }
 
-// Main flow should be at top of bottom of file. Main script is usually invoked at bottom. BEt
-// infer upsell 
-// ad isUpsell to class it's being passed around everything
-
-
 // How do I make a decision on a function like this? Should it be 2 functions?
 // If it's a single function how should the parameters used? Should I pass null?
 // Is there a rule of thumb I can use?
-function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
-    const affiliation = getAffiliation(shopifyObject);
-    const isUpsell = !!upsellRawOrder;
-    if (isUpsell) {
-        upsellCount++;
-        const upsellOrder = OCUUpsellOrder(initialRawOrder, upsellRawOrder, upsellCount, 'dl_upsell_purchase', affiliation);
-        upsellOrder.pushFormattedOrderToDL();
-    } else {
-        const initialOrder = new OCUOrder(initialRawOrder, null, 'dl_purchase', affiliation);
-        initialOrder.pushFormattedOrderToDL();
-    }
+// function onOrder(initialRawOrder, shopifyObject, isUpsell, newRawOrder) {
+// const isUpsell = !!newRawOrder;
+//     if (newRawOrder) upsellCount++;
+//     const rawOrder = isUpsell ? createRawOrderFromDiff(initialRawOrder, newRawOrder) : initialRawOrder;
+//     const order = new ShopifyOrder(rawOrder, rawOrderFormatter, 'dl_upsell_purchase', upsellCount, shopifyObject);
+//     order.pushFormattedOrderToDL();
+// }
+
+function onInitialOrder(initialOrder, shopifyObject) {
+    const rawOrder = initialOrder;
+    const order = new Order(rawOrder, rawOrderFormatter, 'dl_purchase', upsellCount, shopifyObject);
+    order.pushFormattedOrderToDL();
 }
 
-function getAffiliation(shopifyObject) {
-    try {
-        return new URL(shopifyObject.pageUrl).hostname;
-    } catch (e) {
-        return '';
-    }
-}
-
-function getOrderId(orderId, isUpsell, upsellCount) {
-    return isUpsell ? this.orderId.toString() + '-US' + upsellCount.toString() : orderId;
+function onUpsellOrder(newRawOrder, initialRawOrder, shopifyObject) {
+    upsellCount++;
+    const rawOrder = createRawOrderFromDiff(initialRawOrder, newRawOrder)
+    const order = new Order(rawOrder, rawOrderFormatter, 'dl_upsell_purchase', upsellCount, shopifyObject);
+    order.pushFormattedOrderToDL();
 }
 
 function getAdditionalRevenue(newOrder, initialOrder) {
@@ -206,19 +194,19 @@ function getAdditionalSubtotal(newOrder, initialOrder) {
     return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
 }
 
+function getOrderId(orderId, isUpsell, upsellCount) {
+    return isUpsell ? orderId.toString() + '-US' + upsellCount.toString() : orderId;
+}
+
+
 try {
     module.exports = exports = {
-        onOrder,
+        onUpsellOrder,
+        onInitialOrder,
         resetUpsellCount: function () { upsellCount = 0; },
-        Order,
-        OCUUpsellOrder,
-        OCUOrder,
+        Order
     };
     // eslint-disable-next-line no-empty
 } catch (e) { }
 
-const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
-const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
-const affiliation = getAffiliation(shopifyObject);
-const initialOrder = new OCUOrder(initialOrder_1, null, 'dl_purchase', affiliation);
-initialOrder.pushFormattedOrderToDL();
+
