@@ -84,7 +84,7 @@ module.exports = {
         }
     ],
     "subtotalPrice": "4.20",
-    "totalPrice": "6.20",
+    "totalPrice": "7.57",
     "currency": "USD",
     "discounts": [
         {
