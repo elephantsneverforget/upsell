@@ -1,19 +1,3 @@
-// EVENT HOOKS -----------------------------------------------------------
-let upsellCount = 0;
-// eslint-disable-next-line no-unexpected-multiline
-// (function () {
-//     // eslint-disable-next-line no-undef
-//     if (Shopify.wasPostPurchasePageSeen) {
-//         const initialRawOrder = window.Shopify.order;
-//         onOrder(initialRawOrder, null, window.Shopify)
-//     }
-//     // eslint-disable-next-line no-undef
-//     Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
-//         onOrder(initialRawOrder, newRawOrder, window.Shopify)
-//     });
-// })();
-// END EVENT HOOKS -------------------------------------------------------
-
 // eslint-disable-next-line no-unused-vars
 class Order {
     constructor() { }
@@ -178,8 +162,7 @@ class OCUUpsellOrder extends OCUOrder {
     }
 }
 
-// Main flow should be at top of bottom of file. Main script is usually invoked at bottom. BEt
-// infer upsell 
+
 // ad isUpsell to class it's being passed around everything
 // How do I make a decision on a function like this? Should it be 2 functions?
 // If it's a single function how should the parameters used? Should I pass null?
@@ -188,9 +171,9 @@ function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
     const affiliation = getAffiliation(shopifyObject);
     const isUpsell = !!upsellRawOrder;
     if (isUpsell) {
+        upsellCount++;
         const upsellOrder = new OCUUpsellOrder(initialRawOrder, upsellRawOrder, upsellCount, affiliation);
         upsellOrder.pushFormattedOrderToDL();
-        upsellCount++;
     } else {
         const initialOrder = new OCUInitialOrder(initialRawOrder, affiliation);
         initialOrder.pushFormattedOrderToDL();
@@ -216,11 +199,18 @@ try {
     // eslint-disable-next-line no-empty
 } catch (e) { }
 
-// const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
-// const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
-// const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
-// const affiliation = getAffiliation(shopifyObject);
-// const initialOrder = new OCUInitialOrder(initialOrder_1, affiliation);
-// initialOrder.pushFormattedOrderToDL();
-// const upsellOrder = new OCUUpsellOrder(initialOrder_1, firstUpsell_1, 1, affiliation);
-// upsellOrder.pushFormattedOrderToDL();
+// ************************ EVENT HOOKS ***************************** 
+let upsellCount = 0;
+// eslint-disable-next-line no-unexpected-multiline
+(function () {
+    // eslint-disable-next-line no-undef
+    if (Shopify.wasPostPurchasePageSeen) {
+        const initialRawOrder = window.Shopify.order;
+        onOrder(initialRawOrder, null, window.Shopify)
+    }
+    // eslint-disable-next-line no-undef
+    Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
+        onOrder(initialRawOrder, newRawOrder, window.Shopify)
+    });
+})();
+// ************************ END EVENT HOOKS *************************

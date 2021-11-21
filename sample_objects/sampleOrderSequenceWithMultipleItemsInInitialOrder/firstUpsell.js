@@ -5,33 +5,59 @@ module.exports = {
     "checkoutToken": "639d31e3d32eca330def602cf2f54134",
     "lineItems": [
         {
-            "id": 10435506569252,
-            "finalLinePrice": "3.90",
-            "finalPrice": "1.95",
-            "lineLevelTotalDiscount": "35.10",
+            "id": 10435504373796,
+            "finalLinePrice": "1.50",
+            "finalPrice": "1.50",
+            "lineLevelTotalDiscount": 0,
             "optionsWithValues": [
                 {
                     "name": "Title",
                     "value": "Default Title"
                 }
             ],
-            "originalLinePrice": "39.00",
-            "originalPrice": "19.50",
-            "price": "1.95",
+            "originalLinePrice": "1.50",
+            "originalPrice": "1.50",
+            "price": "1.50",
             "product": {
-                "id": 6788257415204,
+                "id": 6804355874852,
                 "type": ""
             },
             "properties": [],
-            "quantity": 2,
-            "title": "Trucker Cap",
+            "quantity": 1,
+            "title": "[Test] Trucker Cap 2",
             "variant": {
-                "id": 39657149366308,
-                "sku": "4563504_8746"
+                "id": 39688721170468,
+                "sku": "2215648_11417"
             }
         },
         {
-            "id": 10435506569255,
+            "id": 10435504472100,
+            "finalLinePrice": "1.50",
+            "finalPrice": "1.50",
+            "lineLevelTotalDiscount": 0,
+            "optionsWithValues": [
+                {
+                    "name": "Title",
+                    "value": "Default Title"
+                }
+            ],
+            "originalLinePrice": "1.50",
+            "originalPrice": "1.50",
+            "price": "1.50",
+            "product": {
+                "id": 6796828442660,
+                "type": ""
+            },
+            "properties": [],
+            "quantity": 1,
+            "title": "[Test] Trucker Cap",
+            "variant": {
+                "id": 39672412504100,
+                "sku": "2215648_11417"
+            }
+        },
+        {
+            "id": 10435506569252,
             "finalLinePrice": "3.90",
             "finalPrice": "1.95",
             "lineLevelTotalDiscount": "35.10",
@@ -58,7 +84,7 @@ module.exports = {
         }
     ],
     "subtotalPrice": "4.20",
-    "totalPrice": "7.57",
+    "totalPrice": "6.20",
     "currency": "USD",
     "discounts": [
         {
