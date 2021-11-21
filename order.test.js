@@ -21,7 +21,7 @@ beforeEach(() => {
 // Tests for orders with single item in initial purchase
 describe('Sample order set 1', () => {
   test('onCheckout adds dl_purchase event to Data Layer', () => {
-    onOrder(initialOrder_1, null, shopifyObject);
+    onOrder(initialOrder_1, shopifyObject);
     expect(window.dataLayer.length).toBe(1);
     expect(window.dataLayer[0].event).toMatch('dl_purchase');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.affiliation).toEqual('store.getelevar.com');
@@ -34,15 +34,15 @@ describe('Sample order set 1', () => {
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on first upsell with correct incremental revenue and subtotal', () => {
-    // onUpsellOrder(firstUpsell_1, initialOrder_1, shopifyObject);
-    // expect(window.dataLayer.length).toBe(1);
-    // expect(window.dataLayer[0].event).toMatch('dl_upsell_purchase');
-    // expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('6.20');
-    // expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('3.90');
-    // expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('2');
-    // expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
-    // expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('35.10');
-    // expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US1'));
+    onOrder(initialOrder_1, firstUpsell_1, shopifyObject);
+    expect(window.dataLayer.length).toBe(1);
+    expect(window.dataLayer[0].event).toMatch('dl_upsell_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.revenue).toEqual('6.20');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('3.90');
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('2');
+    expect(window.dataLayer[0].ecommerce.purchase.products.length).toEqual(1);
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('35.10');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.stringContaining('-US1'));
   });
 
   test('onCheckoutAmended adds dl_upsell_purchase event to Data Layer on second upsell with correct incremental revenue and subtotal', () => {

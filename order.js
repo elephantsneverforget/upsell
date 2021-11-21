@@ -81,7 +81,7 @@ class OCUOrder extends Order {
     getActionField() {
         return {
             'action': "purchase",
-            'affiliation': affiliation,
+            'affiliation': this.affiliation,
             // This is the longer order id that shows in the url on an order page
             'id': this.getOrderId(this.rawOrder.id),
             // This should be the #1240 that shows in order page.
@@ -118,15 +118,15 @@ class OCUOrder extends Order {
 }
 
 class OCUInitialOrder extends OCUOrder {
-    constructor(initialRawOrder, dlEventName, affiliation) {
-        super(dlEventName, affiliation);
+    constructor(initialRawOrder, affiliation) {
+        super('dl_purchase', affiliation);
         super.generateFormattedOrder(initialRawOrder);
     }
 }
 
 class OCUUpsellOrder extends OCUOrder {
-    constructor(initialRawOrder, upsellRawOrder, upsellCount, dlEventName, affiliation) {
-        super(dlEventName, affiliation);
+    constructor(initialRawOrder, upsellRawOrder, upsellCount, affiliation) {
+        super('dl_upsell_purchase', affiliation);
         this.upsellCount = upsellCount;
         const rawOrder = this.createRawOrderFromDiff(initialRawOrder, upsellRawOrder);
         super.generateFormattedOrder(rawOrder);
@@ -141,8 +141,8 @@ class OCUUpsellOrder extends OCUOrder {
         const upsellOrderLineItems = upsellRawOrder.lineItems.filter((lineItem) => {
             return initialOrderItemIds.indexOf(lineItem.id) < 0;
         })
-        const subtotalPrice = getAdditionalSubtotal(upsellRawOrder, initialRawOrder);
-        const totalPrice = getAdditionalRevenue(upsellRawOrder, initialRawOrder);
+        const subtotalPrice = this.getAdditionalSubtotal(upsellRawOrder, initialRawOrder);
+        const totalPrice = this.getAdditionalRevenue(upsellRawOrder, initialRawOrder);
         delete upsellRawOrder['lineItems'];
         delete upsellRawOrder['subtotalPrice'];
         delete upsellRawOrder['totalPrice'];
@@ -157,10 +157,6 @@ class OCUUpsellOrder extends OCUOrder {
         return rawOrder;
     }
 
-    getOrderId(orderId) {
-        return orderId.toString() + '-US' + this.upsellCount.toString();
-    }
-
     getDiscountAmount() {
         if (this.rawOrder.discounts === null || typeof this.rawOrder.discounts === 'undefined') return '0';
         return this.rawOrder.lineItems.reduce(function (acc, addedItem) {
@@ -168,13 +164,23 @@ class OCUUpsellOrder extends OCUOrder {
         }, 0).toFixed(2).toString();
 
     }
+    
+    getAdditionalRevenue(newOrder, initialOrder) {
+        return (parseFloat(newOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2);
+    }
+    
+    getAdditionalSubtotal(newOrder, initialOrder) {
+        return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
+    }
+
+    getOrderId(orderId) {
+        return orderId.toString() + '-US' + this.upsellCount.toString();
+    }
 }
 
 // Main flow should be at top of bottom of file. Main script is usually invoked at bottom. BEt
 // infer upsell 
 // ad isUpsell to class it's being passed around everything
-
-
 // How do I make a decision on a function like this? Should it be 2 functions?
 // If it's a single function how should the parameters used? Should I pass null?
 // Is there a rule of thumb I can use?
@@ -182,11 +188,11 @@ function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
     const affiliation = getAffiliation(shopifyObject);
     const isUpsell = !!upsellRawOrder;
     if (isUpsell) {
-        upsellCount++;
-        const upsellOrder = OCUUpsellOrder(initialRawOrder, upsellRawOrder, upsellCount, 'dl_upsell_purchase', affiliation);
+        const upsellOrder = new OCUUpsellOrder(initialRawOrder, upsellRawOrder, upsellCount, affiliation);
         upsellOrder.pushFormattedOrderToDL();
+        upsellCount++;
     } else {
-        const initialOrder = new OCUInitialOrder(initialRawOrder, null, 'dl_purchase', affiliation);
+        const initialOrder = new OCUInitialOrder(initialRawOrder, affiliation);
         initialOrder.pushFormattedOrderToDL();
     }
 }
@@ -197,14 +203,6 @@ function getAffiliation(shopifyObject) {
     } catch (e) {
         return '';
     }
-}
-
-function getAdditionalRevenue(newOrder, initialOrder) {
-    return (parseFloat(newOrder.totalPrice) - parseFloat(initialOrder.totalPrice)).toFixed(2);
-}
-
-function getAdditionalSubtotal(newOrder, initialOrder) {
-    return (parseFloat(newOrder.subtotalPrice) - parseFloat(initialOrder.subtotalPrice)).toFixed(2);
 }
 
 try {
@@ -218,11 +216,11 @@ try {
     // eslint-disable-next-line no-empty
 } catch (e) { }
 
-const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
-const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
-const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
-const affiliation = getAffiliation(shopifyObject);
-const initialOrder = new OCUInitialOrder(initialOrder_1, null, 'dl_purchase', affiliation);
+// const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
+// const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
+// const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
+// const affiliation = getAffiliation(shopifyObject);
+// const initialOrder = new OCUInitialOrder(initialOrder_1, affiliation);
 // initialOrder.pushFormattedOrderToDL();
-const upsellOrder = new OCUUpsellOrder(initialOrder_1, firstUpsell_1, 1, 'dl_upsell_purchase', affiliation);
-upsellOrder.pushFormattedOrderToDL();
+// const upsellOrder = new OCUUpsellOrder(initialOrder_1, firstUpsell_1, 1, affiliation);
+// upsellOrder.pushFormattedOrderToDL();
