@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 mockWindow();
-const { onOrder, resetUpsellCount } = require('./order');
+const { onOrder, resetUpsellCount } = require('./index');
 const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
 const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
 const secondUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/secondUpsell.js')

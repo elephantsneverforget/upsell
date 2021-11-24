@@ -192,9 +192,6 @@ try {
     module.exports = exports = {
         onOrder,
         resetUpsellCount: function () { upsellCount = 0; },
-        Order,
-        OCUUpsellOrder,
-        OCUInitialOrder,
     };
     // eslint-disable-next-line no-empty
 } catch (e) { }
