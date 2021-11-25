@@ -1,5 +1,5 @@
 // Second upsell, has $1.50 total price - 90% discount +  $1 shipping + $.06 tax
-module.exports = {
+export const secondUpsell_1 = {
     "id": 4109127254052,
     "number": 1330,
     "checkoutToken": "62297e86957b48769b836c34ecba28b8",

@@ -3,10 +3,10 @@
  */
 mockWindow();
 const { onOrder, resetUpsellCount } = require('./index');
-const initialOrder_1 = require('./sample_objects/sampleOrderSequenceWithTax/initialOrder.js')
-const firstUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/firstUpsell.js')
-const secondUpsell_1 = require('./sample_objects/sampleOrderSequenceWithTax/secondUpsell.js')
-const initialOrder_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/initialOrder.js')
+import { initialOrder_1 } from './sample_objects/sampleOrderSequenceWithTax/initialOrder.js';
+import { firstUpsell_1 } from './sample_objects/sampleOrderSequenceWithTax/firstUpsell.js';
+import { secondUpsell_1 } from './sample_objects/sampleOrderSequenceWithTax/secondUpsell.js';
+const initialOrder_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/initialOrder')
 const firstUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/firstUpsell.js')
 const secondUpsell_2 = require('./sample_objects/sampleOrderSequenceWithMultipleItemsInInitialOrder/secondUpsell.js')
 const initialOrder_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/initialOrder.js')

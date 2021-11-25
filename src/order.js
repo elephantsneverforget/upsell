@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-class Order {
+export class Order {
     constructor() { }
 
     rawOrderFormatter() {
@@ -11,7 +10,8 @@ class Order {
     }
 }
 
-class OCUOrder extends Order {
+
+export class OCUOrder extends Order {
     constructor(dlEventName, affiliation) {
         super();
         this.dlEventName = dlEventName;
@@ -101,18 +101,19 @@ class OCUOrder extends Order {
     }
 }
 
-class OCUInitialOrder extends OCUOrder {
+export class OCUInitialOrder extends OCUOrder {
     constructor(initialRawOrder, affiliation) {
         super('dl_purchase', affiliation);
         super.generateFormattedOrder(initialRawOrder);
     }
 }
 
-class OCUUpsellOrder extends OCUOrder {
+export class OCUUpsellOrder extends OCUOrder {
     constructor(initialRawOrder, upsellRawOrder, upsellCount, affiliation) {
         super('dl_upsell_purchase', affiliation);
         this.upsellCount = upsellCount;
         const rawOrder = this.createRawOrderFromDiff(initialRawOrder, upsellRawOrder);
+        // TODO: This seems a bit nasty?
         super.generateFormattedOrder(rawOrder);
     }
 
@@ -161,62 +162,3 @@ class OCUUpsellOrder extends OCUOrder {
         return orderId.toString() + '-US' + this.upsellCount.toString();
     }
 }
-
-
-// ad isUpsell to class it's being passed around everything
-// How do I make a decision on a function like this? Should it be 2 functions?
-// If it's a single function how should the parameters used? Should I pass null?
-// Is there a rule of thumb I can use?
-function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
-    const affiliation = getAffiliation(shopifyObject);
-    const isUpsell = !!upsellRawOrder;
-    if (isUpsell) {
-        upsellCount++;
-        const upsellOrder = new OCUUpsellOrder(initialRawOrder, upsellRawOrder, upsellCount, affiliation);
-        upsellOrder.pushFormattedOrderToDL();
-    } else {
-        const initialOrder = new OCUInitialOrder(initialRawOrder, affiliation);
-        initialOrder.pushFormattedOrderToDL();
-    }
-}
-
-function getAffiliation(shopifyObject) {
-    try {
-        return new URL(shopifyObject.pageUrl).hostname;
-    } catch (e) {
-        return '';
-    }
-}
-
-try {
-    module.exports = exports = {
-        onOrder,
-        resetUpsellCount: function () { upsellCount = 0; },
-    };
-    // eslint-disable-next-line no-empty
-} catch (e) { }
-
-// ************************ EVENT HOOKS ***************************** 
-let upsellCount = 0;
-// eslint-disable-next-line no-unexpected-multiline
-(function () {
-    // eslint-disable-next-line no-undef
-    if (Shopify.wasPostPurchasePageSeen) {
-        const initialRawOrder = window.Shopify.order;
-        onOrder(initialRawOrder, null, window.Shopify)
-    }
-    // eslint-disable-next-line no-undef
-    Shopify.on('CheckoutAmended', function (newRawOrder, initialRawOrder) {
-        onOrder(initialRawOrder, newRawOrder, window.Shopify)
-    });
-})();
-// ************************ END EVENT HOOKS *************************
-
-(function (w, d, s, l, i) {
-    w[l] = w[l] || []; w[l].push({
-        'gtm.start':
-            new Date().getTime(), event: 'gtm.js'
-    }); var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-})(window, document, 'script', 'dataLayer', 'GTM-M5VJXQ9');

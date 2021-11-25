@@ -1,5 +1,5 @@
 // $5.00 price - 90% discount (price is .50) + shipping ($1.00) + tax (.08) = $1.58 total rev
-module.exports = {
+export const initialOrder_1 = {
     "id": 4109127254052,
     "number": 1330,
     "checkoutToken": "62297e86957b48769b836c34ecba28b8",

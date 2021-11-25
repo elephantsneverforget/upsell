@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "babel order.js -d lib"
+    "build": "babel src/index.js -d dist"
   },
   "author": "",
   "license": "ISC",
