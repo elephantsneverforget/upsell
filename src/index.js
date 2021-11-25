@@ -1,4 +1,4 @@
-import { OCUUpsellOrder, OCUInitialOrder } from './order';
+import { OCUUpsellOrder, OCUInitialOrder } from './OCUOrder';
 
 // ad isUpsell to class it's being passed around everything
 // How do I make a decision on a function like this? Should it be 2 functions?
