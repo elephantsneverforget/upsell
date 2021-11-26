@@ -1,3 +1,4 @@
+// TODO: How do you prevent instantiation of a base class in JS?
 export class Order {
     constructor() { }
 

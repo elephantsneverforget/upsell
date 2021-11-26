@@ -24,7 +24,7 @@ const config = {
                 this.emitFile({
                     type: 'asset',
                     fileName: 'main.js',
-                    source: '<script>' + entry.code + '</script>'
+                    source: '<script>' + entry.code.trim() + '</script>'
                 });
             }
         }
