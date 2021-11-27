@@ -1,6 +1,6 @@
 // TODO: How do you prevent instantiation of a base class in JS?
 export class Order {
-    constructor(rawOrder, dlEventName, affiliation) { 
+    constructor(rawOrder, dlEventName, affiliation) {
         // Object.assign(this, conts);
         this.rawOrder = rawOrder;
         this.dlEventName = dlEventName;
@@ -8,7 +8,7 @@ export class Order {
     }
 
     rawOrderFormatter() {
-        throw new Error('Must subclass rawOrderFormatter with implementation.');
+        throw new Error("Must subclass rawOrderFormatter with implementation.");
     }
 
     pushFormattedOrderToDL() {
