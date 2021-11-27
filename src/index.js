@@ -1,7 +1,4 @@
-import { OCUUpsellOrder, OCUInitialOrder } from './OCUOrder';
-
-// ad isUpsell to class it's being passed around everything
-// How do I make a decision on a function like this? Should it be 2 functions?
+import { OCUUpsellOrder, OCUInitialOrder } from './OCUOrder.js';
 // If it's a single function how should the parameters used? Should I pass null?
 // Is there a rule of thumb I can use?
 function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
