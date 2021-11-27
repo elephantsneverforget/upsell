@@ -1,4 +1,4 @@
-import { OCUUpsellOrder, OCUInitialOrder } from "./OCUOrder.js";
+import { OCUUpsellOrder, OCUOrder } from "./OCUOrder.js";
 // If it's a single function how should the parameters used? Should I pass null?
 // Is there a rule of thumb I can use?
 function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
@@ -6,15 +6,22 @@ function onOrder(initialRawOrder, upsellRawOrder, shopifyObject) {
     const isUpsell = !!upsellRawOrder;
     if (isUpsell) {
         upsellCount++;
-        const upsellOrder = new OCUUpsellOrder(
-            initialRawOrder,
-            upsellRawOrder,
-            upsellCount,
-            affiliation
-        );
+        const args = {
+            rawOrder: initialRawOrder,
+            upsellRawOrder: upsellRawOrder,
+            upsellCount: upsellCount,
+            affiliation: affiliation,
+            dlEventName: 'dl_upsell_purchase',
+        };
+        const upsellOrder = new OCUUpsellOrder(args);
         upsellOrder.pushFormattedOrderToDL();
     } else {
-        const initialOrder = new OCUInitialOrder(initialRawOrder, affiliation);
+        const args = {
+            rawOrder: initialRawOrder,
+            affiliation: affiliation,
+            dlEventName: 'dl_purchase',
+        };
+        const initialOrder = new OCUOrder(args);
         initialOrder.pushFormattedOrderToDL();
     }
 }
@@ -29,6 +36,7 @@ function getAffiliation(shopifyObject) {
 }
 
 try {
+    // eslint-disable-next-line no-undef
     module.exports = exports = {
         onOrder,
         resetUpsellCount: function () {

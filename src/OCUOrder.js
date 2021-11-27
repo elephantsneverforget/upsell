@@ -50,14 +50,17 @@ export class OCUOrder extends Order {
         return {
             action: "purchase",
             affiliation: this.affiliation,
-            // This is the longer order id that shows in the url on an order page
+            // This is the longer order id that shows in the url on
+            // an order page
             id: this.getOrderId(this.rawOrder.id),
             // This should be the #1240 that shows in order page.
             order_name: this.getOrderId(this.rawOrder.number),
             // This is total discount. Dollar value, not percentage
-            // On the first order we can look at the discounts object. On upsells, we can't.
+            // On the first order we can look at the discounts object.
+            // On upsells, we can't.
             discount_amount: this.getDiscountAmount(),
-            // We can't determine shipping & tax. For the time being put the difference between subtotal and rev in shipping
+            // We can't determine shipping & tax. For the time being
+            // put the difference between subtotal and rev in shipping
             shipping: (
                 parseFloat(this.rawOrder.totalPrice) -
                 parseFloat(this.rawOrder.subtotalPrice)
@@ -88,20 +91,14 @@ export class OCUOrder extends Order {
     }
 }
 
-export class OCUInitialOrder extends OCUOrder {
-    constructor(initialRawOrder, affiliation) {
-        super(initialRawOrder, 'dl_purchase', affiliation);
-    }
-}
-
 export class OCUUpsellOrder extends OCUOrder {
-    constructor(initialRawOrder, upsellRawOrder, upsellCount, affiliation) {
+    constructor(args) {
         const rawOrder = OCUUpsellOrder.createRawOrderFromDiff(
-            initialRawOrder,
-            upsellRawOrder
+            args.rawOrder,
+            args.upsellRawOrder
         );
-        super(rawOrder, "dl_upsell_purchase", affiliation);
-        this.upsellCount = upsellCount;
+        super(Object.assign(args, { rawOrder: rawOrder }));
+        this.upsellCount = args.upsellCount;
     }
 
     // Creates a raw order based on diffing an initial order and upsell order

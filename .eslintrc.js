@@ -9,5 +9,8 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
+        'semi': ['error', 'always'],
+        'indent': ['error', 4],
+        'max-len': ['error', 80]
     }
 };
