@@ -65,7 +65,7 @@ function getLineItems(lineItems) {
         return {
             'category': item.product.type,
             'variant_id': item.variant.id.toString(),
-            'product_id': Number(item.id).toString(),
+            'product_id': Number(item.product.id).toString(),
             'id': item.variant.sku,
             // We don't get variant title details
             'variant': item.title,
