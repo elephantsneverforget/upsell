@@ -30,6 +30,9 @@ describe('Sample order set 1', () => {
     expect(window.dataLayer[0].ecommerce.purchase.actionField.sub_total).toEqual('0.50');
     expect(window.dataLayer[0].ecommerce.purchase.products[0].quantity).toEqual('1');
     expect(window.dataLayer[0].ecommerce.purchase.products[1]).toBeUndefined();
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].product_id).toEqual('6791661453348');
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].variant_id).toEqual('39663258009636');
+    expect(window.dataLayer[0].ecommerce.purchase.products[0].id).toEqual('test123');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.discount_amount).toEqual('4.50');
     expect(window.dataLayer[0].ecommerce.purchase.actionField.id).toEqual(expect.not.stringContaining('-US'));
   });
