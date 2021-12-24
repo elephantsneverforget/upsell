@@ -143,16 +143,8 @@
                 "totalSpent": "258.44"
             }
         };
-        // Send the initial purchase data if this is the first time seeing the page
-        var Shopify = {}
-        window.Shopify = { order: initialOrder };
-        Shopify.wasPostPurchasePageSeen = true;
-        Shopify.on = function () { };
-        function test() {
-
-        }
     </script>
-    <script src="./index.js"></script>
+    <script src="../../dist/main.js"></script>
     <button onclick="test()">Amend Checkout</button>
 </body>
 
