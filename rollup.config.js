@@ -1,5 +1,5 @@
 import { babel } from '@rollup/plugin-babel';
-import { terser } from "rollup-plugin-terser";
+// import { terser } from "rollup-plugin-terser";
 
 const config = {
     input: 'src/index.js',
@@ -9,7 +9,7 @@ const config = {
     },
     plugins: [
         babel({ babelHelpers: 'bundled' }),
-        terser(),
+        // terser(),
         {
             name: 'wrapper',
             generateBundle(outputOptions, bundle) {
