@@ -1,4 +1,4 @@
-<script>function ownKeys(object, enumerableOnly) {
+function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
 
   if (Object.getOwnPropertySymbols) {
@@ -403,4 +403,4 @@ var upsellCount = 0;
   j.async = true;
   j.src = "https://ssapi.everiewoman.com/gtm.js?id=" + i + dl;
   f.parentNode.insertBefore(j, f);
-})(window, document, "script", "dataLayer", "GTM-MDQNKTX");</script>
+})(window, document, "script", "dataLayer", "GTM-MDQNKTX");
