@@ -380,17 +380,6 @@ try {
 
 var upsellCount = 0;
 
-(function () {
-  if (Shopify.wasPostPurchasePageSeen) {
-    var initialRawOrder = window.Shopify.order;
-    onOrder(initialRawOrder, null, window.Shopify);
-  }
-
-  Shopify.on("CheckoutAmended", function (newRawOrder, initialRawOrder) {
-    onOrder(initialRawOrder, newRawOrder, window.Shopify);
-  });
-})();
-
 (function (w, d, s, l, i) {
   w[l] = w[l] || [];
   w[l].push({
