@@ -1,4 +1,4 @@
-function ownKeys(object, enumerableOnly) {
+<script>function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
 
   if (Object.getOwnPropertySymbols) {
@@ -401,6 +401,6 @@ var upsellCount = 0;
       j = d.createElement(s),
       dl = l != "dataLayer" ? "&l=" + l : "";
   j.async = true;
-  j.src = "https://ssapi.everiewoman.com/gtm.js?id=" + i + dl;
+  j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
   f.parentNode.insertBefore(j, f);
-})(window, document, "script", "dataLayer", "GTM-MDQNKTX");
+})(window, document, "script", "dataLayer", "GTM-M5VJXQ9");</script>
