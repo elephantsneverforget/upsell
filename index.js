@@ -102,7 +102,14 @@ function getActionField(order, isUpsell, initialOrder, addedItems, shopifyObject
         'tax': '0',
         'revenue': revenue,
         'sub_total': subtotal,
+        'coupon': getCouponCodes(order),
     };
+}
+
+function getCouponCodes(order) {
+    return order.discounts ? order.discounts.reduce(function (acc, cur) {
+        return acc + " " + cur.code;
+    }, '').trim() : "";
 }
 
 function getDiscountAmount(shopifyOrder, isUpsell, addedItems) {

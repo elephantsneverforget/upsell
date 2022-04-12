@@ -11,6 +11,7 @@ const initialOrder_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDi
 const firstUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/firstUpsell.js')
 const secondUpsell_3 = require('./sample_objects/cartHookSampleOrderSequenceNoDiscounts/secondUpsell.js')
 const oneOff_1 = require('./sample_objects/oneOffSamples/orderWith0DollarItem.js')
+const oneOff_2 = require('./sample_objects/oneOffSamples/orderWithMultipleDiscounts.js')
 const shopifyObject = require('./sample_objects/shopifyObjectOnUpsellPages.js');
 mockWindow();
 const { onCheckoutAmended, onCheckout, resetUpsellCount } = require('./index')
@@ -149,6 +150,16 @@ describe('One off weird order 1. product with $0 line item still pushes to data 
   });
 })
 
+describe('One off weird order 2. product with multiple discounts', () => {
+  // Tests for orders where discount is null.
+  test('All discount codes are listed in the coupon property', () => {
+    resetUpsellCount();
+    onCheckout(oneOff_2, shopifyObject);
+    expect(window.dataLayer.length).toBe(1);
+    expect(window.dataLayer[0].event).toMatch('dl_purchase');
+    expect(window.dataLayer[0].ecommerce.purchase.actionField.coupon).toEqual('90OFF 10OFF');
+  });
+})
 
 
 function mockWindow() {
